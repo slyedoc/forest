@@ -1,0 +1,15 @@
+[package]
+name = "forests"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
+bevy_egui = { git = "https://github.com/jakobhellermann/bevy_egui", branch = "bevy-main" }
+bevy-inspector-egui = { git = "https://github.com/slyedoc/bevy-inspector-egui", branch = "bevy-main"}
+bevy_prototype_debug_lines = { git = "https://github.com/Toqozz/bevy_debug_lines", branch = "bevy-main" }
+bevy_input_actionmap = { git = "https://github.com/slyedoc/bevy_input_actionmap" }
+bevy_mod_picking = { git = "https://github.com/slyedoc/bevy_mod_picking" }
+rand = "0.8.4"

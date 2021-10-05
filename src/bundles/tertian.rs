@@ -1,11 +1,11 @@
+use crate::helper::*;
 use bevy::prelude::*;
 use bevy_inspector_egui::*;
 
 pub struct TertianPlugin;
 impl Plugin for TertianPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<TertianAssets>()
-        .add_plugin(InspectorPlugin::<TertianAssets>::new().open(false));
+        app.init_inspector_resource::<TertianAssets>();
     }
 }
 
@@ -21,7 +21,7 @@ impl TertianBundle {
             pbr: PbrBundle {
                 mesh: assets.mesh.clone(),
                 material: assets.material.clone(),
-                transform: Transform::from_translation(pos).looking_at(pos - Vec3::Y,  Vec3::Z),
+                transform: Transform::from_translation(pos).looking_at(pos - Vec3::Y, Vec3::Z),
                 ..Default::default()
             },
         }
@@ -52,11 +52,11 @@ impl FromWorld for TertianAssets {
         });
 
         let mut meshes = world.get_resource_mut::<Assets<Mesh>>().unwrap();
-        let size =Vec2::new(50.0, 50.0);
+        let size = Vec2::new(50.0, 50.0);
         Self {
-            size: size,
-            material: material,
-            mesh: meshes.add(Mesh::from(shape::Quad { size: size, flip: false })),
+            size,
+            material,
+            mesh: meshes.add(Mesh::from(shape::Quad { size, flip: false })),
         }
     }
 }

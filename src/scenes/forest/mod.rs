@@ -1,18 +1,29 @@
-use crate::{AppState, bundles::*, helper::cleanup_system};
+
+
+
+use crate::{
+    bundles::*,
+    helper::{back_to_menu_system, cleanup_system},
+    AppState,
+};
 use bevy::prelude::*;
+use bevy_mod_picking::PickableBundle;
 use rand::prelude::*;
 
 use super::StateCleanup;
 
+/// This is where the demo scene that uses everything else goes (long way to go)
 pub struct ForestPlugin;
-
 impl Plugin for ForestPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app
-            .add_system_set(SystemSet::on_enter(AppState::Forest).with_system(setup))
+        app.add_system_set(SystemSet::on_enter(AppState::Forest).with_system(setup))
             .add_system_set(
                 SystemSet::on_update(AppState::Forest)
-                    .with_system(escape_system)
+                    .with_system(back_to_menu_system)
+                    // big brain testing
+                    //.with_system(ai::thirst_system)
+                    //.with_system(ai::drink_action_system)
+                    //.with_system(ai::thirsty_scorer_system),
             )
             .add_system_set(
                 SystemSet::on_exit(AppState::Forest).with_system(cleanup_system::<StateCleanup>),
@@ -20,19 +31,10 @@ impl Plugin for ForestPlugin {
     }
 }
 
-fn escape_system(mut state: ResMut<State<AppState>>, mut keys: ResMut<Input<KeyCode>>) {
-    if keys.pressed(KeyCode::Escape) {
-        state.set(AppState::Menu).unwrap();
-
-        keys.reset(KeyCode::Escape);
-    }
-}
-
 fn setup(
     mut commands: Commands,
     rabbit_assets: Res<RabbitAssets>,
     tertian_assets: Res<TertianAssets>,
-    tree_assets: Res<TreeAssets>,
 ) {
     // settings this up here in for
     let mut rng = StdRng::from_entropy();
@@ -40,7 +42,7 @@ fn setup(
     // Camera
     commands
         .spawn_bundle(PanOrbitCameraBundle::new(
-            Vec3::new(0.0, 15.0, -15.0),
+            Vec3::new(0.0, 5.0, -5.0),
             Vec3::ZERO,
         ))
         .insert(StateCleanup)
@@ -54,28 +56,19 @@ fn setup(
 
     // Tertian
     commands
-        .spawn_bundle(TertianBundle::new( Vec3::ZERO, &tertian_assets))
+        .spawn_bundle(TertianBundle::new(Vec3::ZERO, &tertian_assets))
+        .insert_bundle(PickableBundle::default())
         .insert(StateCleanup)
         .insert(Name::new("Tertian"));
 
     // Rabbits
-    for i in 0..10 {
-        let pos = Vec3::new(
-            rng.gen_range(-10.0..10.0),
-            0.0,
-            rng.gen_range(-10.0..10.00),
-        );
+    for i in 0..20 {
+        let pos = Vec3::new(rng.gen_range(-10.0..10.0), 0.0, rng.gen_range(-10.0..10.00));
         commands
-            .spawn_bundle(RabbitBundle::new(pos, &rabbit_assets ))
+            .spawn_bundle(RabbitBundle::new(pos, &rabbit_assets))
+            .insert_bundle(PickableBundle::default())
             .insert(StateCleanup)
             .insert(Name::new(format!("Rabbit {}", i)));
     }
 
-    // trees
-    commands.spawn_bundle(TreeBundle::new(Vec3::ZERO, &tree_assets))
-        .insert(StateCleanup)
-        .insert(Name::new("Tree"));
 }
-
-
-

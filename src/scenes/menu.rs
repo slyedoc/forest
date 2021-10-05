@@ -1,12 +1,11 @@
 use bevy::{app::AppExit, prelude::*};
+use crate::{helper::cleanup_system, style::ButtonAssets, AppState};
 
-use crate::{helper::cleanup_system, AppState, ButtonMaterials};
-
+/// Main Menu
 pub struct MenuPlugin;
-
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_system_set(SystemSet::on_enter(AppState::Menu).with_system(setup))
+         app.add_system_set(SystemSet::on_enter(AppState::Menu).with_system(setup))
             .add_system_set(
                 SystemSet::on_update(AppState::Menu).with_system(menu_interaction_system),
             )
@@ -17,19 +16,24 @@ impl Plugin for MenuPlugin {
     }
 }
 
+#[derive(Component)]
 struct MenuCleanup;
 
+#[derive(Component)]
 enum MenuButton {
     Forest,
-    Game,
+    TreeTest,
+    TurtleTest,
     Exit,
 }
+
 impl MenuButton {
-    fn name(&self) -> String {
+    fn name(&self) -> &str {
         match self {
-            Self::Forest => "Forest".to_string(),
-            Self::Game => "Game".to_string(),
-            Self::Exit => "Exit".to_string(),
+            MenuButton::Forest => "Forest",
+            MenuButton::TreeTest => "Tree Test",
+            MenuButton::TurtleTest => "Turtle Test",
+            MenuButton::Exit => "Exit",
         }
     }
 }
@@ -37,7 +41,8 @@ impl MenuButton {
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    button_materials: Res<ButtonMaterials>,
+    button_materials: Res<ButtonAssets>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // ui camera
     commands
@@ -51,24 +56,38 @@ fn setup(
         color: Color::rgb(0.9, 0.9, 0.9),
     };
 
-    let _button_forest =
-        create_button(&mut commands, &button_materials, &style, MenuButton::Forest);
-    let _button_game = create_button(&mut commands, &button_materials, &style, MenuButton::Game);
-    let _button_exit = create_button(&mut commands, &button_materials, &style, MenuButton::Exit);
+    commands
+        .spawn_bundle(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                flex_direction: FlexDirection::ColumnReverse,
+                ..Default::default()
+            },
+            material: materials.add(Color::NONE.into()),
+            ..Default::default()
+        })
+        .with_children(|parent| {
+
+           create_button(parent, &button_materials, &style, MenuButton::Forest);
+           create_button(parent, &button_materials, &style,MenuButton::TreeTest);
+           create_button(parent, &button_materials, &style,MenuButton::TurtleTest);
+           create_button(parent, &button_materials, &style, MenuButton::Exit);
+        })
+        .insert(Name::new("Menu"))
+        .insert(MenuCleanup);
 }
 
 fn create_button(
-    commands: &mut Commands,
-    button_materials: &ButtonMaterials,
+    parent: &mut ChildBuilder,
+    button_materials: &ButtonAssets,
     style: &TextStyle,
     button: MenuButton,
-) -> Entity {
-    let button_entity = commands
+) {
+    parent
         .spawn_bundle(ButtonBundle {
             style: Style {
-                size: Size::new(Val::Px(150.0), Val::Px(65.0)),
+                size: Size::new(Val::Px(300.0), Val::Px(65.0)),
                 margin: Rect::all(Val::Auto),
-                flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::Center,
                 // vertically center child text
                 align_items: AlignItems::Center,
@@ -84,15 +103,12 @@ fn create_button(
             });
         })
         .insert(Name::new(format!("{} Button", button.name())))
-        .insert(button)
-        .insert(MenuCleanup)
-        .id();
-    button_entity
+        .insert(button);
 }
 
 fn menu_interaction_system(
     mut state: ResMut<State<AppState>>,
-    button_materials: Res<ButtonMaterials>,
+    button_materials: Res<ButtonAssets>,
     mut interaction_query: Query<
         (&Interaction, &mut Handle<ColorMaterial>, &MenuButton),
         (Changed<Interaction>, With<Button>),
@@ -105,7 +121,8 @@ fn menu_interaction_system(
                 *material = button_materials.pressed.clone();
                 match *button {
                     MenuButton::Forest => state.set(AppState::Forest).unwrap(),
-                    MenuButton::Game => state.set(AppState::Game).unwrap(),
+                    MenuButton::TreeTest => state.set(AppState::TreeTest).unwrap(),
+                    MenuButton::TurtleTest => state.set(AppState::TurtleTest).unwrap(),
                     MenuButton::Exit => exit.send(AppExit),
                 }
             }

@@ -1,96 +1,92 @@
-mod actions;
-mod camera;
-mod grid;
 mod ui;
 
 use bevy::{ecs::schedule::ShouldRun, prelude::*};
-use bevy_input_actionmap::InputMap;
+use bevy_input_actionmap::{ActionPlugin, InputMap};
 use bevy_inspector_egui::WorldInspectorParams;
-pub use camera::*;
-pub use grid::*;
-use std::fmt;
-pub use ui::*;
 
-use self::actions::ActionsWindow;
+use crate::{bundles::*, helper::*};
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 pub enum EditorState {
-    Loading,
     Playing,
     Disabled,
 }
 
+/// Provides Bevy Editor for Debugging
 pub struct EditorPlugin;
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
+        #[cfg(feature = "editor")]
         app.add_state(EditorState::Disabled)
-            .insert_resource(InputMap::<EditorAction>::default())
-            // see https://github.com/bevyengine/bevy/issues/2312
-            .add_plugin(CameraPlugin)
-            //.add_plugin(GridPlugin)
-            //.add_plugin(UIPlugin)
-            .insert_resource(ActionsWindow { enabled: true })
+            .add_system_set(SystemSet::on_enter(EditorState::Playing).with_system(setup_playing))
             .add_system_set(
-                SystemSet::on_update(EditorState::Playing).with_system(actions::draw_actions),
+                SystemSet::on_update(EditorState::Playing).with_system(ui::toolbar_system),
             )
-            .add_startup_system(setup)
-            .add_system(actions_system);
+            .add_system_set(
+                SystemSet::on_exit(EditorState::Playing)
+                    .with_system(ui::close_windows_system)
+                    .with_system(cleanup_system::<EditorCleanup>),
+            )
+            .add_startup_system(setup_actions)
+            .add_system(action_system);
+
+        app.add_plugin(ActionPlugin::<EditorAction>::default());
+
+        // let mut state = app.world.get_resource_mut::<State<EditorState>>().unwrap();
+        // state.push(EditorState::Playing).unwrap();
     }
 }
+#[derive(Component)]
+struct EditorCleanup;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone)]
 pub enum EditorAction {
-    Editor,
-    World,
-    Keys,
+    ToggleEditor,
+    ToggleWorld,
 }
 
-impl fmt::Display for EditorAction {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            EditorAction::Editor => write!(f, "Toggle Editor"),
-            EditorAction::World => write!(f, "Open World Inspector"),
-            EditorAction::Keys => write!(f, "Toggle Key Mappings"),
-        }
-    }
+fn setup_actions(mut input_map: ResMut<InputMap<EditorAction>>) {
+    info!("Toggle Editor - F12");
+    info!("Toggle World Inspector - F11");
+    input_map.bind(EditorAction::ToggleEditor, KeyCode::F12);
+    input_map.bind(EditorAction::ToggleWorld, KeyCode::F11);
 }
 
-fn setup(mut input_map: ResMut<InputMap<EditorAction>>) {
-    input_map.bind(EditorAction::Editor, KeyCode::F12);
-    input_map.bind(EditorAction::World, KeyCode::F11);
-    input_map.bind(EditorAction::Keys, KeyCode::F10);
+fn setup_playing(mut commands: Commands) {
+    commands
+        .spawn_bundle(PanOrbitCameraBundle::new(
+            Vec3::new(100.0, 100.0, 600.0),
+            Vec3::ZERO,
+        ))
+        .insert(Name::new("Editor 3d Camera"))
+        .insert(EditorCleanup);
+
+    commands
+        .spawn_bundle(UiCameraBundle::default())
+        .insert(Name::new("Editor Ui Camera"))
+        .insert(EditorCleanup);
 }
 
-fn actions_system(
+fn action_system(
     input_map: Res<InputMap<EditorAction>>,
     mut state: ResMut<State<EditorState>>,
     mut world_inspection: ResMut<WorldInspectorParams>,
-    mut action_window: ResMut<ActionsWindow>,
 ) {
-    if input_map.just_active(EditorAction::Editor) {
-        info!("editor action");
-        let result = match state.current() {
-            // could only happen if loading takes a while for first frame, but go ahead and disable editor if so
-            EditorState::Loading => EditorState::Disabled,
-            EditorState::Playing => EditorState::Disabled,
-            EditorState::Disabled => EditorState::Loading,
+    if input_map.just_active(EditorAction::ToggleEditor) {
+        match state.current() {
+            EditorState::Playing => state.pop().unwrap(),
+            EditorState::Disabled => state.push(EditorState::Playing).unwrap(),
         };
-        state.set(result).expect("Editor state didn't set");
     }
 
-    if input_map.just_active(EditorAction::World) {
+    if input_map.just_active(EditorAction::ToggleWorld) {
         world_inspection.enabled = !world_inspection.enabled;
-    }
-
-    if input_map.just_active(EditorAction::Keys) {
-        action_window.enabled = !action_window.enabled;
     }
 }
 
 #[allow(dead_code)]
 pub fn run_if_editor(state: Res<State<EditorState>>) -> ShouldRun {
     match state.current() {
-        EditorState::Loading => ShouldRun::Yes,
         EditorState::Playing => ShouldRun::Yes,
         EditorState::Disabled => ShouldRun::No,
     }

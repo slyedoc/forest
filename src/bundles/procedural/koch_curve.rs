@@ -4,40 +4,47 @@ use bevy_inspector_egui::Inspectable;
 
 use super::generate_mesh;
 
+pub struct KochCurvePlugin;
+impl Plugin for KochCurvePlugin {
+    fn build(&self, app: &mut bevy::prelude::App) {
+        
+    }
+}
+
 #[derive(Inspectable, Component, Debug, Copy, Clone)]
-pub struct DragonCurve {
+pub struct KochCurve {
     pub iterations: usize,
 }
-impl Default for DragonCurve {
+impl Default for KochCurve {
     fn default() -> Self {
-        Self { iterations: 3 }
+        Self { iterations: 5 }
     }
 }
 
-impl From<DragonCurve> for Mesh {
-    fn from(data: DragonCurve) -> Self {
-        let axiom = symstr("FX");
+impl From<KochCurve> for Mesh {
+    fn from(data: KochCurve) -> Self {
+
+        let axiom = symstr("F++F++F");
 
         let mut system = LMSystem::new();
-        system.add_rule(rule('X', "X+YF+"));
-        system.add_rule(rule('Y', "-FX-Y"));
+        system.add_rule(rule('F', "F-F++F-F"));
+        println!("{:?}", system);
 
-        let (symstr, _iters) = system.develop(axiom, data.iterations);
-        let t = build(&symstr, 0.0, 90.0, 10.0);
+        let (after, _iters) = system.develop(axiom, data.iterations);
+
+        //draw(&after, 90.0, 60.0, 10.0, &format!("koch_{:02}", iters));
+        let t = build(&after, 90.0, 60.0, 10.0);
 
         generate_mesh(t, 10.0)
-
     }
 }
 
-
-
 #[derive(Inspectable)]
-pub struct DragonCurveAssets {
+pub struct KochCurveAssets {
     pub material: Handle<StandardMaterial>,
 }
 
-impl FromWorld for DragonCurveAssets {
+impl FromWorld for KochCurveAssets {
     fn from_world(world: &mut World) -> Self {
         let mut materials = world
             .get_resource_mut::<Assets<StandardMaterial>>()

@@ -1,12 +1,11 @@
 // L-Systems - https://en.wikipedia.org/wiki/L-system
-// 
+//
 // Credit to https://github.com/mneumann/lindenmayer-system
 pub mod parametric;
 pub mod turtle;
-pub use parametric::*;
-use bevy_prototype_debug_lines::DebugLines;
 pub use expression::cond::Cond;
 pub use expression_num::NumExpr as Expr;
+pub use parametric::*;
 
 use std::fmt::Debug;
 
@@ -17,7 +16,6 @@ pub type SymExpr = PSym<char, Expr<Real>>;
 pub type SymR = PSym<char, Real>;
 pub type Rule = PRule<char, SymExpr, SymR, Cond<Expr<Real>>>;
 pub type LMSystem = PSystem<Rule>;
-
 
 /// Used to name symbols and variables.
 pub trait Alphabet: Debug + PartialEq + Eq + Clone {}
@@ -43,14 +41,13 @@ pub trait DualAlphabet: Alphabet {
     fn terminal(&self) -> Option<&Self::Terminal>;
 }
 
-pub fn draw_l_system(
+pub fn build(
     symstr: &[SymR],
     init_direction: f32,
     default_angle: f32,
     default_distance: f32,
-    lines: &mut DebugLines,
-) {
-    let mut t = Canvas::new();
+) -> Canvas {
+    let mut t = Canvas::default();
     t.right(init_direction);
     for sym in symstr.iter() {
         match (*sym.symbol(), sym.params().get(0)) {
@@ -71,8 +68,8 @@ pub fn draw_l_system(
             _ => {}
         }
     }
+    t
 
-    t.draw_lines(lines);
     // Determine extend of canvas
     // let mut bounds = Bounds::new();
 
@@ -101,9 +98,6 @@ pub fn draw_l_system(
     //     }
     // }
 }
-
-
-
 
 #[allow(dead_code)]
 pub fn symstr<S, R>(s: &str) -> Vec<S>

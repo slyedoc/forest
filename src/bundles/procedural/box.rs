@@ -1,4 +1,7 @@
-use bevy::{prelude::*, render::{mesh::Indices, pipeline::PrimitiveTopology}};
+use bevy::{
+    prelude::*,
+    render::{mesh::Indices, pipeline::PrimitiveTopology},
+};
 use bevy_inspector_egui::Inspectable;
 
 #[derive(Component, Inspectable, Debug, Copy, Clone)]

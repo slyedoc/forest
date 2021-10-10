@@ -1,7 +1,7 @@
 // From bevy_render/src/mesh/shape/mod.rs
 // Import so I can add Component and play with them
+use super::r#box::Box;
 use bevy::prelude::*;
-use super::r#box::Box as Box;
 use bevy_inspector_egui::Inspectable;
 
 #[derive(Component, Inspectable, Debug, Copy, Clone)]
@@ -26,5 +26,3 @@ impl From<Cube> for Mesh {
         Box::new(cube.size, cube.size, cube.size).into()
     }
 }
-
-

@@ -1,9 +1,9 @@
+use super::{Alphabet, DualAlphabet};
+use expression::{Condition, Expression, ExpressionError};
+use rand::Rng;
+use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::marker::PhantomData;
-use super::{Alphabet, DualAlphabet};
-use expression::{Expression, Condition, ExpressionError};
-use std::collections::BTreeMap;
-use rand::Rng;
 
 #[derive(Debug, Eq, PartialEq)]
 pub enum RuleError {
@@ -15,8 +15,7 @@ pub enum RuleError {
     ExprFailed(ExpressionError),
 }
 
-pub trait ParametricSymbol: Clone + PartialEq + Debug
-{
+pub trait ParametricSymbol: Clone + PartialEq + Debug {
     type Sym: Alphabet;
     type Param: Clone + Debug + PartialEq;
 
@@ -29,10 +28,12 @@ pub trait ParametricSymbol: Clone + PartialEq + Debug
     /// Construct a new ParametricSymbol. If the iterator contains a wrong
     /// number of parameters, return None.
     fn new_from_result_iter<I, E>(symbol: Self::Sym, iter: I) -> Option<Result<Self, E>>
-        where I: Iterator<Item = Result<Self::Param, E>>;
+    where
+        I: Iterator<Item = Result<Self::Param, E>>;
 
     fn new_from_iter<I>(symbol: Self::Sym, iter: I) -> Option<Self>
-        where I: Iterator<Item = Self::Param>
+    where
+        I: Iterator<Item = Self::Param>,
     {
         match Self::new_from_result_iter::<_, ()>(symbol, iter.map(Ok)) {
             Some(Ok(res)) => Some(res),
@@ -70,7 +71,8 @@ impl<Sym: Alphabet, Param: Clone + Debug + PartialEq> ParametricSymbol for PSym<
     }
 
     fn new_from_result_iter<I, E>(symbol: Self::Sym, iter: I) -> Option<Result<Self, E>>
-        where I: Iterator<Item = Result<Self::Param, E>>
+    where
+        I: Iterator<Item = Result<Self::Param, E>>,
     {
         let mut params = Vec::with_capacity(iter.size_hint().0);
         for p in iter {
@@ -79,10 +81,7 @@ impl<Sym: Alphabet, Param: Clone + Debug + PartialEq> ParametricSymbol for PSym<
                 Err(e) => return Some(Err(e)),
             }
         }
-        Some(Ok(PSym {
-            symbol,
-            params,
-        }))
+        Some(Ok(PSym { symbol, params }))
     }
 }
 
@@ -119,7 +118,8 @@ impl<Sym: Alphabet, Param: Clone + Debug + PartialEq> ParametricSymbol for PSym1
     }
 
     fn new_from_result_iter<I, E>(symbol: Self::Sym, mut iter: I) -> Option<Result<Self, E>>
-        where I: Iterator<Item = Result<Self::Param, E>>
+    where
+        I: Iterator<Item = Result<Self::Param, E>>,
     {
         let p1 = match iter.next() {
             Some(Ok(p)) => p,
@@ -170,7 +170,8 @@ impl<Sym: Alphabet, Param: Clone + Debug + PartialEq> ParametricSymbol for PSym2
     }
 
     fn new_from_result_iter<I, E>(symbol: Self::Sym, mut iter: I) -> Option<Result<Self, E>>
-        where I: Iterator<Item = Result<Self::Param, E>>
+    where
+        I: Iterator<Item = Result<Self::Param, E>>,
     {
         let p1 = match iter.next() {
             Some(Ok(p)) => p,
@@ -193,8 +194,7 @@ impl<Sym: Alphabet, Param: Clone + Debug + PartialEq> ParametricSymbol for PSym2
     }
 }
 
-pub trait ParametricRule: Clone + Debug
-{
+pub trait ParametricRule: Clone + Debug {
     type InSym: ParametricSymbol;
     type OutSym: ParametricSymbol;
 
@@ -205,10 +205,11 @@ pub trait ParametricRule: Clone + Debug
 
 #[derive(Debug, Clone)]
 pub struct PRule<Sym, PS, PS2, C>
-    where Sym: Alphabet,
-          PS: ParametricSymbol<Sym = Sym, Param = C::Expr>,
-          PS2: ParametricSymbol<Sym = Sym, Param = <C::Expr as Expression>::Element>,
-          C: Condition
+where
+    Sym: Alphabet,
+    PS: ParametricSymbol<Sym = Sym, Param = C::Expr>,
+    PS2: ParametricSymbol<Sym = Sym, Param = <C::Expr as Expression>::Element>,
+    C: Condition,
 {
     pub symbol: Sym,
     pub condition: C,
@@ -218,10 +219,11 @@ pub struct PRule<Sym, PS, PS2, C>
 }
 
 impl<Sym, PS, PS2, C> PRule<Sym, PS, PS2, C>
-    where Sym: Alphabet,
-          PS: ParametricSymbol<Sym = Sym, Param = C::Expr>,
-          PS2: ParametricSymbol<Sym = Sym, Param = <C::Expr as Expression>::Element>,
-          C: Condition
+where
+    Sym: Alphabet,
+    PS: ParametricSymbol<Sym = Sym, Param = C::Expr>,
+    PS2: ParametricSymbol<Sym = Sym, Param = <C::Expr as Expression>::Element>,
+    C: Condition,
 {
     pub fn new(sym: Sym, cond: C, prod: Vec<PS>, arity: usize) -> PRule<Sym, PS, PS2, C> {
         PRule {
@@ -235,10 +237,11 @@ impl<Sym, PS, PS2, C> PRule<Sym, PS, PS2, C>
 }
 
 impl<Sym, PS, PS2, C> ParametricRule for PRule<Sym, PS, PS2, C>
-    where Sym: Alphabet,
-          PS: ParametricSymbol<Sym = Sym, Param = C::Expr>,
-          PS2: ParametricSymbol<Sym = Sym, Param = <C::Expr as Expression>::Element>,
-          C: Condition
+where
+    Sym: Alphabet,
+    PS: ParametricSymbol<Sym = Sym, Param = C::Expr>,
+    PS2: ParametricSymbol<Sym = Sym, Param = <C::Expr as Expression>::Element>,
+    C: Condition,
 {
     type InSym = PS;
     type OutSym = PS2;
@@ -254,10 +257,13 @@ impl<Sym, PS, PS2, C> ParametricRule for PRule<Sym, PS, PS2, C>
 
                     // evaluate all parameters of all symbols in the production
                     for prod_sym in self.production.iter() {
-                        match PS2::new_from_result_iter(prod_sym.symbol().clone(),
-                                                        prod_sym.params().iter().map(|expr| {
-                                                            expr.evaluate(psym.params())
-                                                        })) {
+                        match PS2::new_from_result_iter(
+                            prod_sym.symbol().clone(),
+                            prod_sym
+                                .params()
+                                .iter()
+                                .map(|expr| expr.evaluate(psym.params())),
+                        ) {
                             Some(Ok(new_sym)) => {
                                 new_symbol_string.push(new_sym);
                             }
@@ -287,14 +293,16 @@ impl<Sym, PS, PS2, C> ParametricRule for PRule<Sym, PS, PS2, C>
 
 #[test]
 fn test_rule_apply() {
-    use expression_num::NumExpr;
     use expression::cond::Cond;
+    use expression_num::NumExpr;
     let expr_s = PSym::new_from_vec('P', vec![NumExpr::Const(123u32)]).unwrap();
 
-    let rule = PRule::<_, PSym<_, NumExpr<u32>>, PSym<_, u32>, _>::new('A',
-                                                                       Cond::True,
-                                                                       vec![expr_s.clone()],
-                                                                       1);
+    let rule = PRule::<_, PSym<_, NumExpr<u32>>, PSym<_, u32>, _>::new(
+        'A',
+        Cond::True,
+        vec![expr_s.clone()],
+        1,
+    );
 
     let param_s = PSym::new_from_vec('P', vec![123u32]).unwrap();
     assert_eq!(Err(RuleError::SymbolMismatch), rule.apply(&param_s));
@@ -303,21 +311,25 @@ fn test_rule_apply() {
     let result_s = PSym::new_from_vec('P', vec![123u32]).unwrap();
     assert_eq!(Ok(vec![result_s]), rule.apply(&param_s));
 
-    let rule = PRule::<_, PSym<_, NumExpr<u32>>, PSym<_, u32>, _>::new('A',
-                                                                       Cond::False,
-                                                                       vec![expr_s],
-                                                                       1);
+    let rule =
+        PRule::<_, PSym<_, NumExpr<u32>>, PSym<_, u32>, _>::new('A', Cond::False, vec![expr_s], 1);
     assert_eq!(Err(RuleError::ConditionFalse), rule.apply(&param_s));
 }
 
 pub trait ParametricSystem {
     type Rule: ParametricRule;
 
-    fn apply_first_rule(&self, sym: &<Self::Rule as ParametricRule>::OutSym) -> Option<Vec<<Self::Rule as ParametricRule>::OutSym>>;
+    fn apply_first_rule(
+        &self,
+        sym: &<Self::Rule as ParametricRule>::OutSym,
+    ) -> Option<Vec<<Self::Rule as ParametricRule>::OutSym>>;
 
     /// Apply in parallel the first matching rule to each symbol in the string.
     /// Returns the total number of rule applications.
-    fn develop_next(&self, axiom: &[<Self::Rule as ParametricRule>::OutSym]) -> (Vec<<Self::Rule as ParametricRule>::OutSym>, usize) {
+    fn develop_next(
+        &self,
+        axiom: &[<Self::Rule as ParametricRule>::OutSym],
+    ) -> (Vec<<Self::Rule as ParametricRule>::OutSym>, usize) {
         let mut expanded = Vec::new();
         let mut rule_applications = 0;
 
@@ -339,10 +351,11 @@ pub trait ParametricSystem {
     }
 
     /// Develop the system starting with `axiom` up to `max_iterations`. Return iteration count.
-    fn develop(&self,
-               axiom: Vec<<Self::Rule as ParametricRule>::OutSym>,
-               max_iterations: usize)
-               -> (Vec<<Self::Rule as ParametricRule>::OutSym>, usize) {
+    fn develop(
+        &self,
+        axiom: Vec<<Self::Rule as ParametricRule>::OutSym>,
+        max_iterations: usize,
+    ) -> (Vec<<Self::Rule as ParametricRule>::OutSym>, usize) {
         let mut current = axiom;
 
         for iter in 0..max_iterations {
@@ -357,10 +370,12 @@ pub trait ParametricSystem {
 }
 
 /// Apply first matching rule and return expanded successor.
-pub fn apply_first_rule<R>(rules: &[R],
-                           sym: &<R as ParametricRule>::OutSym)
-                           -> Option<Vec<<R as ParametricRule>::OutSym>>
-    where R: ParametricRule
+pub fn apply_first_rule<R>(
+    rules: &[R],
+    sym: &<R as ParametricRule>::OutSym,
+) -> Option<Vec<<R as ParametricRule>::OutSym>>
+where
+    R: ParametricRule,
 {
     for rule in rules {
         if let Ok(successor) = rule.apply(sym) {
@@ -372,14 +387,15 @@ pub fn apply_first_rule<R>(rules: &[R],
 
 #[derive(Debug, Clone)]
 pub struct PSystem<R>
-    where R: ParametricRule
+where
+    R: ParametricRule,
 {
     rules: Vec<R>,
 }
 
-
-
-impl<R> PSystem<R> where R: ParametricRule
+impl<R> PSystem<R>
+where
+    R: ParametricRule,
 {
     #[allow(clippy::new_without_default)]
     pub fn new() -> PSystem<R> {
@@ -391,40 +407,47 @@ impl<R> PSystem<R> where R: ParametricRule
     }
 }
 
-
-impl<R> ParametricSystem for PSystem<R> where R: ParametricRule
+impl<R> ParametricSystem for PSystem<R>
+where
+    R: ParametricRule,
 {
     type Rule = R;
 
     /// Apply first matching rule and return expanded successor.
-    fn apply_first_rule(&self, sym: &<Self::Rule as ParametricRule>::OutSym) -> Option<Vec<<Self::Rule as ParametricRule>::OutSym>> {
+    fn apply_first_rule(
+        &self,
+        sym: &<Self::Rule as ParametricRule>::OutSym,
+    ) -> Option<Vec<<Self::Rule as ParametricRule>::OutSym>> {
         apply_first_rule(&self.rules, sym)
     }
 }
-
 
 /// Distinguishes between terminal symbols and non-terminals.  Rules are only allowed on
 /// non-terminals.
 #[derive(Debug, Clone)]
 pub struct PDualMapSystem<A, R>
-    where A: DualAlphabet,
-          R: ParametricRule,
-          <R as ParametricRule>::InSym: ParametricSymbol<Sym = A>,
-          <R as ParametricRule>::OutSym: ParametricSymbol<Sym = A>
+where
+    A: DualAlphabet,
+    R: ParametricRule,
+    <R as ParametricRule>::InSym: ParametricSymbol<Sym = A>,
+    <R as ParametricRule>::OutSym: ParametricSymbol<Sym = A>,
 {
     rules: BTreeMap<A::NonTerminal, Vec<R>>,
 }
 
 impl<A, Rule> PDualMapSystem<A, Rule>
-    where A: DualAlphabet,
-          Rule: ParametricRule,
-          <Rule as ParametricRule>::InSym: ParametricSymbol<Sym = A>,
-          <Rule as ParametricRule>::OutSym: ParametricSymbol<Sym = A>
+where
+    A: DualAlphabet,
+    Rule: ParametricRule,
+    <Rule as ParametricRule>::InSym: ParametricSymbol<Sym = A>,
+    <Rule as ParametricRule>::OutSym: ParametricSymbol<Sym = A>,
 {
     #[allow(dead_code)]
     #[allow(clippy::new_without_default)]
     pub fn new() -> PDualMapSystem<A, Rule> {
-        PDualMapSystem { rules: BTreeMap::new() }
+        PDualMapSystem {
+            rules: BTreeMap::new(),
+        }
     }
 
     #[allow(dead_code)]
@@ -453,8 +476,9 @@ impl<A, Rule> PDualMapSystem<A, Rule>
 
     #[allow(dead_code)]
     pub fn with_random_rule<R, F>(&self, rng: &mut R, mut callback: F)
-        where R: Rng,
-              F: FnMut(&mut R, Option<&Rule>)
+    where
+        R: Rng,
+        F: FnMut(&mut R, Option<&Rule>),
     {
         if let Some(rule_id) = self.random_rule_id(rng) {
             if let Some(local_rules) = self.rules.get(rule_id) {
@@ -472,10 +496,10 @@ impl<A, Rule> PDualMapSystem<A, Rule>
 
     #[allow(dead_code)]
     pub fn with_random_rule_mut<R, F>(&mut self, rng: &mut R, mut callback: F)
-        where R: Rng,
-              F: FnMut(&mut R, Option<&mut Rule>)
+    where
+        R: Rng,
+        F: FnMut(&mut R, Option<&mut Rule>),
     {
-
         let opt_rule_id = self.random_rule_id(rng).cloned();
         if let Some(rule_id) = opt_rule_id {
             if let Some(local_rules) = self.rules.get_mut(&rule_id) {
@@ -494,7 +518,8 @@ impl<A, Rule> PDualMapSystem<A, Rule>
     /// Calls the callback for each rule in the system.
     #[allow(dead_code)]
     pub fn each_rule<F>(&self, mut callback: F)
-        where F: FnMut(&Rule)
+    where
+        F: FnMut(&Rule),
     {
         for (_rule_id, vec_rules) in self.rules.iter() {
             for rule in vec_rules.iter() {
@@ -505,20 +530,27 @@ impl<A, Rule> PDualMapSystem<A, Rule>
 }
 
 impl<A, R> ParametricSystem for PDualMapSystem<A, R>
-    where A: DualAlphabet,
-          R: ParametricRule,
-          <R as ParametricRule>::InSym: ParametricSymbol<Sym = A>,
-          <R as ParametricRule>::OutSym: ParametricSymbol<Sym = A>
+where
+    A: DualAlphabet,
+    R: ParametricRule,
+    <R as ParametricRule>::InSym: ParametricSymbol<Sym = A>,
+    <R as ParametricRule>::OutSym: ParametricSymbol<Sym = A>,
 {
     type Rule = R;
 
-    fn apply_first_rule(&self, sym: &<Self::Rule as ParametricRule>::OutSym) -> Option<Vec<<Self::Rule as ParametricRule>::OutSym>> {
+    fn apply_first_rule(
+        &self,
+        sym: &<Self::Rule as ParametricRule>::OutSym,
+    ) -> Option<Vec<<Self::Rule as ParametricRule>::OutSym>> {
         match sym.symbol().nonterminal() {
             // We don't store rules for terminal symbols.
             None => None,
 
             // Only apply rules for non-terminals
-            Some(id) => self.rules.get(id).and_then(|rules| apply_first_rule(&rules[..], sym)),
+            Some(id) => self
+                .rules
+                .get(id)
+                .and_then(|rules| apply_first_rule(&rules[..], sym)),
         }
     }
 }

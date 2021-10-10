@@ -1,11 +1,11 @@
-use bevy::{app::AppExit, prelude::*};
 use crate::{helper::cleanup_system, style::ButtonAssets, AppState};
+use bevy::{app::AppExit, prelude::*};
 
 /// Main Menu
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-         app.add_system_set(SystemSet::on_enter(AppState::Menu).with_system(setup))
+        app.add_system_set(SystemSet::on_enter(AppState::Menu).with_system(setup))
             .add_system_set(
                 SystemSet::on_update(AppState::Menu).with_system(menu_interaction_system),
             )
@@ -67,11 +67,10 @@ fn setup(
             ..Default::default()
         })
         .with_children(|parent| {
-
-           create_button(parent, &button_materials, &style, MenuButton::Forest);
-           create_button(parent, &button_materials, &style,MenuButton::TreeTest);
-           create_button(parent, &button_materials, &style,MenuButton::TurtleTest);
-           create_button(parent, &button_materials, &style, MenuButton::Exit);
+            create_button(parent, &button_materials, &style, MenuButton::Forest);
+            create_button(parent, &button_materials, &style, MenuButton::TreeTest);
+            create_button(parent, &button_materials, &style, MenuButton::TurtleTest);
+            create_button(parent, &button_materials, &style, MenuButton::Exit);
         })
         .insert(Name::new("Menu"))
         .insert(MenuCleanup);

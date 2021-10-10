@@ -5,33 +5,36 @@ use bevy_inspector_egui::*;
 pub struct TertianPlugin;
 impl Plugin for TertianPlugin {
     fn build(&self, app: &mut App) {
-        app.init_inspector_resource::<TertianAssets>();
+        app.init_inspector_resource::<TertianAssets>()
+            .add_system_to_stage(CoreStage::PreUpdate, init_terian_system);
     }
 }
 
-#[derive(Bundle)]
+#[derive(Default, Component)]
+pub struct Tertain;
+
+#[derive(Default, Bundle, Component)]
 pub struct TertianBundle {
+    tertain: Tertain,
     #[bundle]
     pbr: PbrBundle,
 }
 
-impl TertianBundle {
-    pub fn new(pos: Vec3, assets: &TertianAssets) -> Self {
-        Self {
-            pbr: PbrBundle {
-                mesh: assets.mesh.clone(),
-                material: assets.material.clone(),
-                transform: Transform::from_translation(pos).looking_at(pos - Vec3::Y, Vec3::Z),
-                ..Default::default()
-            },
-        }
+pub fn init_terian_system(
+    mut query: Query<(&mut Handle<Mesh>, &mut Handle<StandardMaterial>), Added<Tertain>>,
+    assets: ResMut<TertianAssets>,
+) {
+    for (mut mesh, mut material) in query.iter_mut() {
+        warn!("setting");
+        *mesh = assets.mesh.clone();
+        *material = assets.material.clone();
     }
 }
 
 #[derive(Inspectable)]
 pub struct TertianAssets {
-    #[inspectable(label= "Size XY", min = Vec2::ZERO, max = Vec2::splat(100.0), speed = 1.0 )]
-    pub size: Vec2,
+    #[inspectable(label = "Size", min = 0.0, max = 100.0, speed = 10.0)]
+    pub size: f32,
     #[inspectable(ignore)]
     pub mesh: Handle<Mesh>,
 
@@ -52,11 +55,11 @@ impl FromWorld for TertianAssets {
         });
 
         let mut meshes = world.get_resource_mut::<Assets<Mesh>>().unwrap();
-        let size = Vec2::new(50.0, 50.0);
+        let size = 50.0;
         Self {
             size,
             material,
-            mesh: meshes.add(Mesh::from(shape::Quad { size, flip: false })),
+            mesh: meshes.add(Mesh::from(shape::Plane { size })),
         }
     }
 }

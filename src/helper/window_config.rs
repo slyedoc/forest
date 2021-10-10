@@ -2,11 +2,11 @@
 ///
 /// Note: Really this is to speed up dev time
 /// I sick of my own app covering up vscode
-/// 
+///
 /// There are lots issues with this implementation
 /// - cross platform and wasm
 /// - fires to much during resize
-/// 
+///
 use super::PathConfig;
 use bevy::{
     prelude::*,
@@ -35,8 +35,7 @@ impl Default for WindowConfig {
 pub struct WindowConfigPlugin;
 impl Plugin for WindowConfigPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_startup_system(setup)
+        app.add_startup_system(setup)
             .add_system(change_detection_system)
             .add_system(delay_hack_system);
 
@@ -46,7 +45,6 @@ impl Plugin for WindowConfigPlugin {
 
         // For now just using WindowCreation event to trigger the load_and_set later
         // Missing something here and tired of messing with it
-
     }
 }
 
@@ -82,8 +80,6 @@ fn load_and_set(paths: Res<PathConfig>, mut windows: ResMut<Windows>) {
     window.set_position(config.position);
     window.set_resolution(config.width, config.height);
 }
-
-
 
 fn change_detection_system(
     mut move_events: EventReader<WindowMoved>,

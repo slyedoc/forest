@@ -16,9 +16,15 @@ A playground of my bevy and rust experiments
 
 A lot of this is really poorly implemented
 
-## Thoughts
+## Current Thoughts
 
-Really want to try out ui4 or 5.
+* Really want to try out ui4 or 5.
+* I am sick at trying to get versions of everything working together. Updating most plugins have been trivial, even enjoy it.  Its fighting cargo to get them all to get them using the same , its getting better.
+* Going to wait for new render-pipeline and naga before looking into wasm
+* Need to start pulling in pull request, as get a workflow down and become more productive and can give back
 
-I am sick at trying to get versions of everything working together, I don't even mind updating them, its fighting them all to get them on the same version, its getting better.
-> Plan to stop forking everything with better understanding of patching in cargo.
+## Links
+
+To tools yet to take a look at but want too:
+
+* [bevy_pen_tool]([https://link](https://github.com/eliotbo/bevy_pen_tool))

@@ -1,10 +1,8 @@
-
 use std::f32::consts::PI;
 use std::ops::{Add, Neg};
 
 use bevy::math::*;
-use bevy::prelude::info;
-use bevy_prototype_debug_lines::DebugLines;
+use bevy::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Position(f32, f32);
@@ -151,7 +149,7 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new() -> Canvas {
+    pub fn default() -> Self {
         let init_pos = Position::origin();
         let init_state = TurtleState {
             pos: init_pos,
@@ -159,7 +157,7 @@ impl Canvas {
             angle: Degree(0.0), // points upwards
             pendown: true,      // start with pen down
         };
-        Canvas {
+        Self {
             states: vec![init_state],
             paths: vec![vec![init_pos]],
         }
@@ -203,17 +201,99 @@ impl Canvas {
         }
     }
 
-    pub fn draw_lines(&self, lines: &mut DebugLines) {
+    fn foreach_position<F: FnMut(Position)>(&self, mut f: F, scale_x: f32, scale_y: f32) {
         for path in self.paths.iter() {
-            if let Some((head, tail)) = path.split_first() {
-                for pos in tail {
-                    info!("{:?}", pos);
-                    lines.line(vec3( head.0, head.1, 0.0), vec3(pos.0, pos.1, 0.0), 30.0);
-                }
+            for pos in path.iter() {
+                f(Position(pos.0 * scale_x, pos.1 * scale_y));
             }
         }
     }
+
+    pub fn draw_lines(&self, size: f32 ) -> Vec<(Vec2, Vec2)> {
+
+        // Determine extend of canvas
+        let mut bounds = Bounds::new();
+        // The EPS coordinates are from bottom to top, like turtle coordinates.
+        self.foreach_position(|pos| bounds.add_position(pos), 1.0, 1.0);
+
+        let (min_width, min_height) = (100.0, 100.0);
+        let width = bounds.width().max(min_width);
+        let height = bounds.height().max(min_height);
+        info!( "size: {} x {}", width, height);
+
+        let scale = vec2(  size / width, size / height);
+
+        info!( "scale: {}", scale);
+
+        let mut lines = Vec::new();
+        let mut last = Vec2::ZERO;
+        for path in self.paths.iter() {
+            if let Some((_head, tail)) = path.split_first() {
+                // todo
+                for pos in tail {
+                    lines.push((vec2(last.x, last.y) * scale, vec2(pos.0, pos.1) * scale));
+                    last = vec2(pos.0, pos.1);
+                }
+            }
+        }
+        lines
+    }
 }
+
+
+
+struct Bounds {
+    min_max: Option<(Position, Position)>,
+}
+
+impl Bounds {
+    fn new() -> Bounds {
+        Bounds { min_max: None }
+    }
+
+    fn add_position(&mut self, pos: Position) {
+        let mm = match self.min_max {
+            None => (pos, pos),
+            Some(ref a) => pos.min_max(a),
+        };
+
+        self.min_max = Some(mm);
+    }
+
+    #[allow(dead_code)]
+    fn is_bounded(&self) -> bool {
+        self.min_max.is_some()
+    }
+
+    fn width(&self) -> f32 {
+        let (min, max) = self.min_max.unwrap();
+        (max.0 - min.0).abs()
+    }
+
+    fn height(&self) -> f32 {
+        let (min, max) = self.min_max.unwrap();
+        (max.1 - min.1).abs()
+    }
+
+    fn min_x(&self) -> f32 {
+        let (min, _) = self.min_max.unwrap();
+        min.0
+    }
+    fn min_y(&self) -> f32 {
+        let (min, _) = self.min_max.unwrap();
+        min.1
+    }
+
+    fn max_x(&self) -> f32 {
+        let (_, max) = self.min_max.unwrap();
+        max.0
+    }
+    fn max_y(&self) -> f32 {
+        let (_, max) = self.min_max.unwrap();
+        max.1
+    }
+}
+
 
 impl Turtle for Canvas {
     /// Move turtle forward by specified `distance`.

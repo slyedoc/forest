@@ -1,10 +1,8 @@
 mod ui;
 
+use crate::helper::*;
 use bevy::{ecs::schedule::ShouldRun, prelude::*};
-use bevy_input_actionmap::{ActionPlugin, InputMap};
 use bevy_inspector_egui::WorldInspectorParams;
-
-use crate::{bundles::*, helper::*};
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 pub enum EditorState {
@@ -16,6 +14,9 @@ pub enum EditorState {
 pub struct EditorPlugin;
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
+        info!("Toggle Editor - F12");
+        info!("Toggle World Inspector - F11");
+
         #[cfg(feature = "editor")]
         app.add_state(EditorState::Disabled)
             .add_system_set(SystemSet::on_enter(EditorState::Playing).with_system(setup_playing))
@@ -27,37 +28,18 @@ impl Plugin for EditorPlugin {
                     .with_system(ui::close_windows_system)
                     .with_system(cleanup_system::<EditorCleanup>),
             )
-            .add_startup_system(setup_actions)
             .add_system(action_system);
-
-        app.add_plugin(ActionPlugin::<EditorAction>::default());
-
-        // let mut state = app.world.get_resource_mut::<State<EditorState>>().unwrap();
-        // state.push(EditorState::Playing).unwrap();
     }
 }
 #[derive(Component)]
 struct EditorCleanup;
 
-#[derive(Debug, Hash, PartialEq, Eq, Clone)]
-pub enum EditorAction {
-    ToggleEditor,
-    ToggleWorld,
-}
-
-fn setup_actions(mut input_map: ResMut<InputMap<EditorAction>>) {
-    info!("Toggle Editor - F12");
-    info!("Toggle World Inspector - F11");
-    input_map.bind(EditorAction::ToggleEditor, KeyCode::F12);
-    input_map.bind(EditorAction::ToggleWorld, KeyCode::F11);
-}
-
 fn setup_playing(mut commands: Commands) {
     commands
-        .spawn_bundle(PanOrbitCameraBundle::new(
-            Vec3::new(100.0, 100.0, 600.0),
-            Vec3::ZERO,
-        ))
+        .spawn_bundle(PerspectiveCameraBundle {
+            transform: Transform::from_xyz(100.0, 100.0, 600.0),
+            ..Default::default()
+        })
         .insert(Name::new("Editor 3d Camera"))
         .insert(EditorCleanup);
 
@@ -68,18 +50,18 @@ fn setup_playing(mut commands: Commands) {
 }
 
 fn action_system(
-    input_map: Res<InputMap<EditorAction>>,
+    keyboard_input: Res<Input<KeyCode>>,
     mut state: ResMut<State<EditorState>>,
     mut world_inspection: ResMut<WorldInspectorParams>,
 ) {
-    if input_map.just_active(EditorAction::ToggleEditor) {
+    if keyboard_input.just_pressed(KeyCode::F12) {
         match state.current() {
             EditorState::Playing => state.pop().unwrap(),
             EditorState::Disabled => state.push(EditorState::Playing).unwrap(),
         };
     }
 
-    if input_map.just_active(EditorAction::ToggleWorld) {
+    if keyboard_input.just_pressed(KeyCode::F11) {
         world_inspection.enabled = !world_inspection.enabled;
     }
 }

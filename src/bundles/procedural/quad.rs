@@ -1,4 +1,8 @@
-use bevy::{math::*, prelude::*, render::{mesh::Indices, pipeline::PrimitiveTopology}};
+use bevy::{
+    math::*,
+    prelude::*,
+    render::{mesh::Indices, pipeline::PrimitiveTopology},
+};
 use bevy_inspector_egui::Inspectable;
 
 /// A rectangle on the XY plane.

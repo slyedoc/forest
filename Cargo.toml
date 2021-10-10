@@ -4,38 +4,20 @@ version = "0.1.0"
 edition = "2021"
 resolver = "2"
 
-[lib]
-crate-type = ["cdylib", "rlib"]
-
 # Dependencies for all targets go here.
 [dependencies]
-bevy = { version = "0.5", default-features = false, features = ["render"] }
+bevy = "0.5"
 bevy_egui = "0.7"
-bevy_dolly = "0.6"
+bevy_dolly = { git = "https://github.com/slyedoc/bevy_dolly", branch = "bevy-native" }
 bevy-inspector-egui = "0.6"
 bevy_prototype_debug_lines = "0.3"
-
-# TODO: Remove this
-bevy_input_actionmap = { git = "https://github.com/slyedoc/bevy_input_actionmap" }
-
 bevy_mod_picking = "0.4"
-convert_case = "0.4.0"
 ron = "0.6"
 serde = "1.0"
 rand = "0.8"
 noise = "0.7"
 expression = "0.3"
 expression-num = "0.2"
-wasm-bindgen = "0.2"
-
-# Dependencies for native only.
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-bevy = { version = "0.5", default-features = false, features = ["bevy_wgpu", "bevy_winit", "render", "x11"]}
-
-# Dependencies for WASM only.
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-bevy = { version = "0.5", default-features = false, features = ["bevy_winit", "render"]}
-
 
 [dev-dependencies]
 expression-num = "0.2.3"
@@ -45,10 +27,23 @@ default = ["editor"]
 editor = []
 
 [patch.crates-io]
+# Github versions
 bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
 bevy_mod_raycast = { git = "https://github.com/slyedoc/bevy_mod_raycast" }
 bevy_mod_picking = { git = "https://github.com/slyedoc/bevy_mod_picking" }
-bevy_egui = { git = "https://github.com/jakobhellermann/bevy_egui", branch = "bevy-main" }
+bevy_egui = { git = "https://github.com/slyedoc/bevy_egui", branch = "bevy-main" }
 bevy-inspector-egui = { git = "https://github.com/slyedoc/bevy-inspector-egui/", branch="bevy-main" }
-bevy_input_actionmap = { git = "https://github.com/slyedoc/bevy_input_actionmap" }
 bevy_prototype_debug_lines = { git = "https://github.com/slyedoc/bevy_debug_lines" }
+
+[patch."https://github.com/slyedoc/bevy_dolly"]
+bevy_dolly = { path = "../bevy_dolly" }
+
+# Local versions
+#bevy = "bevy"
+#bevy_mod_raycast = { path = "../bevy_mod_raycast" }
+#bevy_mod_picking = { path = "../bevy_mod_picking" }
+#bevy_egui = { git = "https://github.com/jakobhellermann/bevy_egui", branch = "bevy-main" }
+#bevy-inspector-egui = { path = "../bevy-inspector-egui" }
+#bevy_prototype_debug_lines = { path = "../bevy_debug_lines" }
+#bevy_rapier2d = { path = "bevy_rapier/bevy_rapier2d", default-features = false, features = [ "dim2", "f32" ]  }
+#bevy_rapier3d = { path = "bevy_rapier/bevy_rapier3d" }

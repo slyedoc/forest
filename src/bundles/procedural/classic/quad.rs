@@ -98,6 +98,7 @@ impl From<Quad> for Mesh {
             uvs.push(*uv);
         }
 
+
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
         mesh.set_indices(Some(indices));
         mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, positions);

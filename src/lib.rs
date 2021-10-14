@@ -4,21 +4,24 @@
 mod bundles;
 mod editor;
 mod helper;
-mod linden_mayer;
 mod scenes;
 mod style;
-
-use bevy_dolly::DollyPlugin;
-use bevy_prototype_debug_lines::*;
+mod camera;
+mod city;
+mod environment;
+mod loading;
 
 pub mod prelude {
-    pub use crate::{bundles::*, editor::*, helper::*};
+    pub use crate::{AppState, bundles::*, editor::*, helper::*, camera::*, city::*, environment::* };
 }
 
 use bundles::BundlePlugins;
+use city::CityPlugin;
 use editor::*;
 use helper::*;
+use loading::LoadingPlugin;
 use scenes::*;
+use camera::*;
 use style::StylePlugin;
 
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
@@ -26,6 +29,7 @@ use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
+    Loading,
     Menu,
     Forest,
     TreeTest,
@@ -47,23 +51,31 @@ pub fn run() {
             ..Default::default()
         })
         .add_plugin(WorldInspectorPlugin::new())
-        .add_plugin(DebugLinesPlugin)
-        .insert_resource(DebugLines {
-            depth_test: true,
-            ..Default::default()
-        })
+        .add_plugin(bevy_mod_picking::DefaultPickingPlugins)
+        .add_plugin(bevy_transform_gizmo::TransformGizmoPlugin)
+        //.add_plugin(DebugLinesPlugin)
+        // .insert_resource(DebugLines {
+        //     depth_test: true,
+        //     ..Default::default()
+        // })
         //.add_plugin(PickingPlugin)
         //.add_plugin(DefaultPickingPlugins)
         //.add_plugin(DebugCursorPickingPlugin)
         //.add_plugin(DebugEventsPickingPlugin)
         .add_plugin(FrameTimeDiagnosticsPlugin)
-        .add_plugin(DollyPlugin)
         // Local Plugins
+        .add_plugin(CameraPlugin)
+        .add_plugin(CityPlugin)
         .add_plugin(EditorPlugin)
         .add_plugin(StylePlugin)
         .add_plugin(HelperPlugin)
+        .add_plugin(LoadingPlugin)
         .add_plugins(BundlePlugins)
         .add_plugins(StatePlugins);
+
+        //.add_plugin(BoundingVolumePlugin::<sphere::BSphere>::default())
+        //.add_plugin(BoundingVolumePlugin::<aabb::Aabb>::default())
+        //.add_plugin(BoundingVolumePlugin::<obb::Obb>::default());
 
     app.run();
 }

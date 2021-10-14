@@ -4,20 +4,27 @@ version = "0.1.0"
 edition = "2021"
 resolver = "2"
 
+[toolchain]
+channel = "nightly"
+
 # Dependencies for all targets go here.
 [dependencies]
-bevy = "0.5"
+bevy = { version="0.5", features = ["dynamic"] }
 bevy_egui = "0.7"
+bevy-shadows = { git = "https://github.com/slyedoc/bevy-shadows" }
 bevy_dolly = { git = "https://github.com/slyedoc/bevy_dolly", branch = "bevy-native" }
 bevy-inspector-egui = "0.6"
-bevy_prototype_debug_lines = "0.3"
+bevy_transform_gizmo = { git = "https://github.com/ForesightMiningSoftwareCorporation/bevy_transform_gizmo", branch = "bevy-main" }
+bevy_mod_bounding = { git = "https://github.com/slyedoc/bevy_mod_bounding" }
 bevy_mod_picking = "0.4"
+bevy_asset_loader = { git = "https://github.com/NiklasEi/bevy_asset_loader", branch = "bevy_main" }
 ron = "0.6"
 serde = "1.0"
 rand = "0.8"
 noise = "0.7"
 expression = "0.3"
 expression-num = "0.2"
+derive_more = "0.99.0"
 
 [dev-dependencies]
 expression-num = "0.2.3"
@@ -33,7 +40,6 @@ bevy_mod_raycast = { git = "https://github.com/slyedoc/bevy_mod_raycast" }
 bevy_mod_picking = { git = "https://github.com/slyedoc/bevy_mod_picking" }
 bevy_egui = { git = "https://github.com/slyedoc/bevy_egui", branch = "bevy-main" }
 bevy-inspector-egui = { git = "https://github.com/slyedoc/bevy-inspector-egui/", branch="bevy-main" }
-bevy_prototype_debug_lines = { git = "https://github.com/slyedoc/bevy_debug_lines" }
 
 [patch."https://github.com/slyedoc/bevy_dolly"]
 bevy_dolly = { path = "../bevy_dolly" }

@@ -1,7 +1,7 @@
 // L-Systems - https://en.wikipedia.org/wiki/L-system
 //
 // Credit to https://github.com/mneumann/lindenmayer-system
-pub mod parametric;
+mod parametric;
 pub mod turtle;
 pub use expression::cond::Cond;
 pub use expression_num::NumExpr as Expr;
@@ -9,7 +9,7 @@ pub use parametric::*;
 
 use std::fmt::Debug;
 
-use turtle::{Canvas, Turtle};
+pub use turtle::*;
 
 pub type Real = f32;
 pub type SymExpr = PSym<char, Expr<Real>>;
@@ -69,34 +69,6 @@ pub fn build(
         }
     }
     t
-
-    // Determine extend of canvas
-    // let mut bounds = Bounds::new();
-
-    // // The EPS coordinates are from bottom to top, like turtle coordinates.
-    // self.foreach_position(|pos| bounds.add_position(pos), 1.0, 1.0);
-
-    // let (min_width, min_height) = (100.0, 100.0);
-    // let width = bounds.width().max(min_width);
-    // let height = bounds.height().max(min_height);
-    // let border_percent = 0.1;
-
-    // let scale = 1.0 + 2.0 * border_percent;
-
-    // // use a stroke width of 0.1% of the width or height of the canvas
-    // let stroke_width = scale * width.max(height) / 1000.0;
-    // writeln!(wr, r#"{} setlinewidth"#, stroke_width)?;
-
-    // for path in self.paths.iter() {
-    //     if let Some((head, tail)) = path.split_first() {
-    //         writeln!(wr, "newpath")?;
-    //         writeln!(wr, "  {} {} moveto", head.0, head.1)?;
-    //         for pos in tail {
-    //             writeln!(wr, r#"  {} {} lineto"#, pos.0, pos.1)?;
-    //         }
-    //         writeln!(wr, r#"stroke"#)?;
-    //     }
-    // }
 }
 
 #[allow(dead_code)]

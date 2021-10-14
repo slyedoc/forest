@@ -209,8 +209,7 @@ impl Canvas {
         }
     }
 
-    pub fn draw_lines(&self, size: f32 ) -> Vec<(Vec2, Vec2)> {
-
+    pub fn draw_lines(&self, size: f32) -> Vec<(Vec2, Vec2)> {
         // Determine extend of canvas
         let mut bounds = Bounds::new();
         // The EPS coordinates are from bottom to top, like turtle coordinates.
@@ -219,11 +218,11 @@ impl Canvas {
         let (min_width, min_height) = (100.0, 100.0);
         let width = bounds.width().max(min_width);
         let height = bounds.height().max(min_height);
-        info!( "size: {} x {}", width, height);
+        info!("size: {} x {}", width, height);
 
-        let scale = vec2(  size / width, size / height);
+        let scale = vec2(size / width, size / height);
 
-        info!( "scale: {}", scale);
+        info!("scale: {}", scale);
 
         let mut lines = Vec::new();
         let mut last = Vec2::ZERO;
@@ -239,8 +238,6 @@ impl Canvas {
         lines
     }
 }
-
-
 
 struct Bounds {
     min_max: Option<(Position, Position)>,
@@ -274,26 +271,27 @@ impl Bounds {
         let (min, max) = self.min_max.unwrap();
         (max.1 - min.1).abs()
     }
-
+    #[allow(dead_code)]
     fn min_x(&self) -> f32 {
         let (min, _) = self.min_max.unwrap();
         min.0
     }
+    #[allow(dead_code)]
     fn min_y(&self) -> f32 {
         let (min, _) = self.min_max.unwrap();
         min.1
     }
-
+    #[allow(dead_code)]
     fn max_x(&self) -> f32 {
         let (_, max) = self.min_max.unwrap();
         max.0
     }
+    #[allow(dead_code)]
     fn max_y(&self) -> f32 {
         let (_, max) = self.min_max.unwrap();
         max.1
     }
 }
-
 
 impl Turtle for Canvas {
     /// Move turtle forward by specified `distance`.

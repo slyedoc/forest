@@ -9,6 +9,12 @@ use bevy_egui::{
 };
 use bevy_inspector_egui::{plugin::InspectorWindows, WorldInspectorParams};
 
+use crate::editor::spawner::SpawnType;
+
+use super::spawner::SpawnEvent;
+
+
+#[allow(clippy::too_many_arguments)]
 pub fn toolbar_system(
     egui_ctx: Res<EguiContext>,
     //mut state: ResMut<State<AppState>>,
@@ -18,6 +24,7 @@ pub fn toolbar_system(
     diagnostics: Res<Diagnostics>,
     mut egui_settings: Local<bool>,
     mut egui_inspection: Local<bool>,
+    mut spawner_event: EventWriter<SpawnEvent>
 ) {
     use bevy_inspector_egui::egui::Window;
 
@@ -43,6 +50,22 @@ pub fn toolbar_system(
                 ui.add(Checkbox::new(&mut egui_settings, "Egui Settings"));
                 ui.add(Checkbox::new(&mut egui_inspection, "Egui Inspection"));
             });
+
+
+            menu::menu(ui, "Spawner", |ui| {
+                let types = vec![
+                    SpawnType::Circle ,
+                    SpawnType::City,
+                    SpawnType::CityBuilding
+                ];
+                for  t in types.iter() {
+                    if ui.button(format!("{:?}", t)).clicked() {
+    
+                        spawner_event.send(SpawnEvent(t.clone()));
+                    }
+                }
+            });
+
 
             // TODO: Figure out better way to align right
             let desired_size = ui.available_width();
@@ -71,6 +94,8 @@ pub fn toolbar_system(
         .show(egui_ctx.ctx(), |ui| {
             egui_ctx.ctx().settings_ui(ui);
         });
+
+
 }
 
 pub fn close_windows_system(mut inspector_windows: ResMut<InspectorWindows>) {

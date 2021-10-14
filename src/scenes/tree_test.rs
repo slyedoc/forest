@@ -22,10 +22,17 @@ fn setup(mut commands: Commands) {
     // trees
     commands
         .spawn_bundle(ProceduralBundle {
-            data: procedural::DragonCurve { iterations: 2 },
+            data: procedural::DragonCurve {
+                iterations: 2,
+                size: 1.0,
+            },
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
             ..Default::default()
         })
         .insert(StateCleanup)
-        .insert(Name::new("Tree"));
+        .insert(Name::new("Tree"))
+        ;
+
+
+        
 }

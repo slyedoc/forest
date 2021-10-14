@@ -34,3 +34,23 @@ pub fn back_to_menu_system(mut state: ResMut<State<AppState>>, mut keys: ResMut<
         keys.reset(KeyCode::Escape);
     }
 }
+
+// from bevy bounding
+pub struct Aabb {
+    #[allow(dead_code)]
+    pub minimums: Vec3,
+    /// The coordinates of the point located at the maximum x, y, and z coordinate. This can also
+    /// be thought of as the length of the +x, +y, +z axes that extend from the origin and touch
+    /// the inside of the bounding box faces.
+    pub maximums: Vec3,
+}
+
+pub fn compute_aabb(vertices: &[Vec3]) -> Aabb {
+    let mut maximums = Vec3::new(f32::MIN, f32::MIN, f32::MIN);
+    let mut minimums = Vec3::new(f32::MAX, f32::MAX, f32::MAX);
+    for vertex in vertices.iter() {
+        maximums = vertex.max(maximums);
+        minimums = vertex.max(minimums);
+    }
+    Aabb { minimums, maximums }
+}

@@ -2,9 +2,6 @@ use crate::helper::*;
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
 
-// TODO: Port something like https://gltf-trees.donmccurdy.com/
-
-// planet_demo.rs
 pub struct TreePlugin;
 impl Plugin for TreePlugin {
     fn build(&self, app: &mut App) {
@@ -40,27 +37,3 @@ impl FromWorld for TreeAssets {
     }
 }
 
-#[derive(Component, Inspectable, Default)]
-pub struct TreeConfig {
-    // clumpMax:f32,
-// clumpMin:f32,
-// lengthFalloffFactor:f32,
-// lengthFalloffPower:f32,
-// branchFactor:f32,
-// radiusFalloffRate:f32,
-// climbRate:f32,
-// trunkKink:f32,
-// maxRadius:f32,
-// treeSteps:usize,
-// taperRate:f32,
-// twistRate:usize,
-// segments:usize,
-// levels:usize,
-// sweepAmount:f32,
-// initalBranchLength:f32,
-// trunkLength:f32,
-// dropAmount: f32,
-// growAmount: f32,
-// vMultiplier:f32,
-// twigScale:f32,
-}

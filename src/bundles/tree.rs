@@ -36,4 +36,3 @@ impl FromWorld for TreeAssets {
         }
     }
 }
-

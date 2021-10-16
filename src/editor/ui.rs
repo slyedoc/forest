@@ -9,10 +9,7 @@ use bevy_egui::{
 };
 use bevy_inspector_egui::{plugin::InspectorWindows, WorldInspectorParams};
 
-use crate::editor::spawner::SpawnType;
-
-use super::spawner::SpawnEvent;
-
+use super::EditorWindows;
 
 #[allow(clippy::too_many_arguments)]
 pub fn toolbar_system(
@@ -22,9 +19,7 @@ pub fn toolbar_system(
     mut world_inspection: ResMut<WorldInspectorParams>,
     mut inspector_windows: ResMut<InspectorWindows>,
     diagnostics: Res<Diagnostics>,
-    mut egui_settings: Local<bool>,
-    mut egui_inspection: Local<bool>,
-    mut spawner_event: EventWriter<SpawnEvent>
+    mut windows: ResMut<EditorWindows>,
 ) {
     use bevy_inspector_egui::egui::Window;
 
@@ -38,6 +33,12 @@ pub fn toolbar_system(
 
             menu::menu(ui, "Windows", |ui| {
                 ui.add(Checkbox::new(&mut world_inspection.enabled, "World"));
+                ui.add(Checkbox::new(&mut windows.spawner, "Spawner"));
+                ui.add(Checkbox::new(&mut windows.egui_settings, "Egui Settings"));
+                ui.add(Checkbox::new(
+                    &mut windows.egui_inspection,
+                    "Egui Inspection",
+                ));
             });
 
             menu::menu(ui, "Resources", |ui| {
@@ -45,27 +46,6 @@ pub fn toolbar_system(
                     ui.add(Checkbox::new(&mut w.visible, &w.name));
                 }
             });
-
-            menu::menu(ui, "Egui", |ui| {
-                ui.add(Checkbox::new(&mut egui_settings, "Egui Settings"));
-                ui.add(Checkbox::new(&mut egui_inspection, "Egui Inspection"));
-            });
-
-
-            menu::menu(ui, "Spawner", |ui| {
-                let types = vec![
-                    SpawnType::Circle ,
-                    SpawnType::City,
-                    SpawnType::CityBuilding
-                ];
-                for  t in types.iter() {
-                    if ui.button(format!("{:?}", t)).clicked() {
-    
-                        spawner_event.send(SpawnEvent(t.clone()));
-                    }
-                }
-            });
-
 
             // TODO: Figure out better way to align right
             let desired_size = ui.available_width();
@@ -82,24 +62,23 @@ pub fn toolbar_system(
     });
 
     Window::new("Inspection")
-        .open(&mut egui_inspection)
+        .open(&mut windows.egui_inspection)
         .scroll(true)
         .show(egui_ctx.ctx(), |ui| {
             egui_ctx.ctx().inspection_ui(ui);
         });
 
     Window::new("Settings")
-        .open(&mut egui_settings)
+        .open(&mut windows.egui_settings)
         .scroll(true)
         .show(egui_ctx.ctx(), |ui| {
             egui_ctx.ctx().settings_ui(ui);
         });
-
-
 }
 
 pub fn close_windows_system(mut inspector_windows: ResMut<InspectorWindows>) {
     for (_, w) in inspector_windows.iter_mut() {
         w.visible = false;
     }
+    // Could close other windows, don't want to for now though
 }

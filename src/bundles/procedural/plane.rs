@@ -1,11 +1,10 @@
-use bevy::{
-    math::*,
-    prelude::*,
-    render::{pipeline::PrimitiveTopology},
-};
+use bevy::{math::*, prelude::*, render::pipeline::PrimitiveTopology};
 use bevy_inspector_egui::Inspectable;
 
-use crate::{helper::compute_aabb, prelude::{convert_vec2, convert_vec3}};
+use crate::{
+    helper::compute_aabb,
+    prelude::{convert_vec2, convert_vec3},
+};
 
 // DO NOT USE
 #[derive(Inspectable, Component, Debug, Copy, Clone)]
@@ -31,7 +30,7 @@ impl Default for Plane {
 impl From<Plane> for Mesh {
     fn from(shape: Plane) -> Self {
         // figure out how many
-        let triangle_count = (shape.divisions[0] * shape.divisions[1] ) as usize * 2;
+        let triangle_count = (shape.divisions[0] * shape.divisions[1]) as usize * 2;
         let mut vertices: Vec<Vec3> = Vec::new();
         let mut normals: Vec<Vec3> = Vec::new();
         let mut uvs: Vec<Vec2> = Vec::new();
@@ -103,7 +102,7 @@ impl From<Plane> for Mesh {
 fn debug_mesh(positions: &[Vec3], triangle_count: usize) -> Mesh {
     let mut new_positions = Vec::new();
     let mut normals = Vec::new();
-    let mut uvs: Vec<[f32; 2]>  = Vec::new();
+    let mut uvs: Vec<[f32; 2]> = Vec::new();
     for i in (0..triangle_count).step_by(2) {
         // 0 3
         // 1 2
@@ -123,7 +122,7 @@ fn debug_mesh(positions: &[Vec3], triangle_count: usize) -> Mesh {
 
     info!("{:?}", positions);
     let mut mesh = Mesh::new(bevy::render::pipeline::PrimitiveTopology::LineStrip);
-    mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, convert_vec3(&positions));
+    mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, convert_vec3(positions));
     mesh.set_attribute(Mesh::ATTRIBUTE_NORMAL, convert_vec3(&normals));
     mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
     mesh

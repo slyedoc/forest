@@ -9,8 +9,8 @@ impl Plugin for EnvironmentPlugin {
         app.init_inspector_resource::<EnvironmentConfig>()
             .add_plugin(ShadowPlugin::default())
             .add_startup_system(light_setup)
-            .add_system(light_config_system)
-            .add_system(light_direction);
+            .add_system(light_config_system);
+            //.add_system(light_direction);
     }
 }
 
@@ -31,10 +31,13 @@ impl Default for EnvironmentConfig {
     }
 }
 
-fn light_setup(mut commands: Commands, config: Res<EnvironmentConfig>, mut ambient_light: ResMut<AmbientLight>) {
+fn light_setup(
+    mut commands: Commands,
+    config: Res<EnvironmentConfig>,
+    mut ambient_light: ResMut<AmbientLight>,
+) {
+    ambient_light.brightness = 0.1;
 
-    ambient_light.brightness = 0.01;
-    
     let half_size = 5.0;
     info!("creating sun");
     commands
@@ -52,10 +55,15 @@ fn light_setup(mut commands: Commands, config: Res<EnvironmentConfig>, mut ambie
             bottom: -half_size,
             top: half_size,
             ..Default::default()
-        });
+        })
+        .insert(Name::new("Directional Light"));
 }
 
-fn light_config_system(_time: Res<Time>, config: Res<EnvironmentConfig>,  mut query: Query<&mut DirectionalLight>) {
+fn light_config_system(
+    _time: Res<Time>,
+    config: Res<EnvironmentConfig>,
+    mut query: Query<&mut DirectionalLight>,
+) {
     if config.is_changed() {
         for mut light in query.iter_mut() {
             // let theta = std::f32::consts::TAU * time.seconds_since_startup() as f32 / 10.0;
@@ -67,8 +75,6 @@ fn light_config_system(_time: Res<Time>, config: Res<EnvironmentConfig>,  mut qu
         }
     }
 }
-
-
 
 #[allow(dead_code)] // rotator for testing
 fn light_direction(time: Res<Time>, mut query: Query<&mut DirectionalLight>) {

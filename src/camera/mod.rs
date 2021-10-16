@@ -2,7 +2,10 @@ mod actions;
 mod bundle;
 pub use actions::*;
 use bevy::{input::mouse::MouseMotion, prelude::*};
+//use bevy_mod_picking::RayCastSource;
 pub use bundle::*;
+
+//use crate::prelude::SpawnerSet;
 
 pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
@@ -10,7 +13,19 @@ impl Plugin for CameraPlugin {
         app
             // These are only use for camera control system
             .init_resource::<CameraConfig>()
-            .add_system_to_stage(CoreStage::PreUpdate, update_camera_system);
+            .add_system_to_stage(CoreStage::PreUpdate, update_camera_system)
+            .add_system(init_camera_system);
+    }
+}
+
+fn init_camera_system(mut commands: Commands, query: Query<Entity, Added<CameraBundleMarker>>) {
+    for e in query.iter() {
+         commands
+             .entity(e)
+             .insert(bevy_transform_gizmo::GizmoPickSource::default())
+        //     .insert(RayCastSource::<SpawnerSet>::new())
+             .insert_bundle(bevy_mod_picking::PickingCameraBundle::default());
+            
     }
 }
 
@@ -46,7 +61,7 @@ impl Default for CameraConfig {
 /// Updates rigs with a generic control system
 ///
 /// This only runs for DollyControlCameraBundles, not DollyCameraBundles
-/// 
+///
 fn update_camera_system(
     time: Res<Time>,
     input_keys: Res<Input<KeyCode>>,
@@ -142,7 +157,6 @@ fn update_camera_system(
     }
 }
 
-
 // fn pan_orbit_camera(
 //     windows: Res<Windows>,
 //     mut ev_motion: EventReader<MouseMotion>,
@@ -224,7 +238,6 @@ fn update_camera_system(
 //         }
 //     }
 // }
-
 
 fn look_around<T: Copy + Eq + std::hash::Hash>(
     window: &mut Window,

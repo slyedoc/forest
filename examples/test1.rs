@@ -34,7 +34,6 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-
     commands
         .spawn_bundle(ProceduralBundle {
             data: procedural::Plane::default(),
@@ -46,7 +45,7 @@ fn setup(
         //.insert(debug::DebugBounds)
         .insert(Rotator);
 
-    commands.spawn_bundle(CameraBundle{
+    commands.spawn_bundle(CameraBundle {
         transform: Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::Y, Vec3::Y),
         ..Default::default()
     });

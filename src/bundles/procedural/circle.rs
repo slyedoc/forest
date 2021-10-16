@@ -18,7 +18,6 @@ pub struct Circle {
     triangles_per_rad: usize,
     #[inspectable(min = Vec2::new(0.0, 0.0), max = Vec2::new(1.0, 1.0), speed = 0.1)]
     uv_offset: Vec2,
-    
 }
 
 impl Default for Circle {
@@ -61,7 +60,8 @@ impl From<Circle> for Mesh {
             let index1: u32 = i + 1;
             let mut index2: u32 = i + 2;
 
-            if i == triangle_count - 1 { //special case
+            if i == triangle_count - 1 {
+                //special case
                 index2 = 1; //second vertex of last triangle is vertex1
             }
 
@@ -74,7 +74,7 @@ impl From<Circle> for Mesh {
         for pos in positions.iter() {
             let x = (pos[0] * 0.5 / bounds.maximums.x) + 0.5 + c.uv_offset.x;
             let y = (pos[1] * 0.5 / bounds.maximums.y) + 0.5 + c.uv_offset.y;
-            uvs.push(vec2( x, y ));
+            uvs.push(vec2(x, y));
         }
 
         info!("positions: {}", positions.len());

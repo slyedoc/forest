@@ -5,7 +5,25 @@ use bevy_inspector_egui::Inspectable;
 pub struct StylePlugin;
 impl Plugin for StylePlugin {
     fn build(&self, app: &mut App) {
-        app.init_inspector_resource::<ButtonAssets>();
+        app.init_inspector_resource::<ButtonAssets>()
+            .init_inspector_resource::<FontAssets>();
+    }
+}
+
+#[derive(Inspectable)]
+pub struct FontAssets {
+    pub fira_sans: Handle<Font>,
+    pub fira_mono: Handle<Font>,
+}
+
+impl FromWorld for FontAssets {
+    fn from_world(world: &mut World) -> Self {
+        let asset_server = world.get_resource::<AssetServer>().unwrap();
+
+        Self {
+            fira_sans: asset_server.load("fonts/FiraSans-Bold.ttf"),
+            fira_mono: asset_server.load("fonts/FiraMono-Medium.ttf"),
+        }
     }
 }
 

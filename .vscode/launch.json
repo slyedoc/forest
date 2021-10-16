@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "type": "lldb",
             "request": "launch",
@@ -39,7 +40,10 @@
                 }
             },
             "args": [],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "CARGO_MANIFEST_DIR": "${workspaceFolder}",
+            }
         },
         {
             "type": "lldb",
@@ -63,30 +67,33 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug example 'tree'",
+            "name": "Debug example 'city'",
             "cargo": {
                 "args": [
                     "build",
-                    "--example=tree",
+                    "--example=city",
                     "--package=forest"
                 ],
                 "filter": {
-                    "name": "tree",
+                    "name": "city",
                     "kind": "example"
                 }
             },
             "args": [],
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "CARGO_MANIFEST_DIR": "${workspaceFolder}",
+            }
         },
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in example 'tree'",
+            "name": "Debug unit tests in example 'city'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--example=tree",
+                    "--example=city",
                     "--package=forest"
                 ],
                 "filter": {

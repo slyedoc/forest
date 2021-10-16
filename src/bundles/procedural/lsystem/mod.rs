@@ -2,19 +2,13 @@ mod abop_1_9;
 mod dragon_curve;
 mod fractal_plant;
 mod koch_curve;
-mod sierpinski;
 mod linden_mayer;
+mod sierpinski;
 
 use bevy::prelude::*;
 pub use linden_mayer::*;
 
-pub use {
-    abop_1_9::*,
-    dragon_curve::*,
-    koch_curve::*,
-    sierpinski::*,
-    fractal_plant::*,
-};
+pub use {abop_1_9::*, dragon_curve::*, fractal_plant::*, koch_curve::*, sierpinski::*};
 
 pub fn generate_mesh(t: turtle::Canvas, size: f32) -> Mesh {
     // Get turtle path as lines

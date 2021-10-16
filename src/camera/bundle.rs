@@ -1,8 +1,18 @@
-use bevy::{prelude::*, render::{camera::{Camera, PerspectiveProjection, VisibleEntities}, render_graph::base}};
 use super::actions::*;
+use bevy::{
+    prelude::*,
+    render::{
+        camera::{Camera, PerspectiveProjection, VisibleEntities},
+        render_graph::base,
+    },
+};
+
+#[derive(Component, Default)]
+pub struct CameraBundleMarker;
 
 #[derive(Bundle)]
 pub struct CameraBundle {
+    pub marker: CameraBundleMarker,
     pub control_actions: ControlActions,
     pub camera: Camera,
     pub perspective_projection: PerspectiveProjection,
@@ -23,7 +33,7 @@ impl Default for CameraBundle {
             visible_entities: Default::default(),
             transform: Default::default(),
             global_transform: Default::default(),
+            marker: Default::default(),
         }
     }
 }
-

@@ -1,7 +1,7 @@
+use super::generate_mesh;
+use super::linden_mayer::*;
 use bevy::prelude::*;
 use bevy_inspector_egui::Inspectable;
-use super::linden_mayer::*;
-use super::generate_mesh;
 
 #[derive(Inspectable, Component, Debug, Copy, Clone)]
 pub struct FractalPlant {

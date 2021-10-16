@@ -30,9 +30,5 @@ fn setup(mut commands: Commands) {
             ..Default::default()
         })
         .insert(StateCleanup)
-        .insert(Name::new("Tree"))
-        ;
-
-
-        
+        .insert(Name::new("Tree"));
 }

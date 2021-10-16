@@ -4,30 +4,30 @@ version = "0.1.0"
 edition = "2021"
 resolver = "2"
 
-[toolchain]
-channel = "nightly"
-
 # Dependencies for all targets go here.
 [dependencies]
-bevy = { version="0.5", features = ["dynamic"] }
+bevy = { version="0.5" }#, features = ["dynamic"] }
 bevy_egui = "0.7"
-bevy-shadows = { git = "https://github.com/slyedoc/bevy-shadows" }
-bevy_dolly = { git = "https://github.com/slyedoc/bevy_dolly", branch = "bevy-native" }
+bevy-shadows = { git = "https://github.com/slyedoc/bevy-shadows" } # not published
+bevy_dolly = { git = "https://github.com/slyedoc/bevy_dolly", branch = "bevy-native" } # not published
 bevy-inspector-egui = "0.6"
-bevy_transform_gizmo = { git = "https://github.com/ForesightMiningSoftwareCorporation/bevy_transform_gizmo", branch = "bevy-main" }
-bevy_mod_bounding = { git = "https://github.com/slyedoc/bevy_mod_bounding" }
+bevy_transform_gizmo = { git = "https://github.com/slyedoc/bevy_transform_gizmo", branch = "bevy-main" } # not published
+bevy_mod_raycast = "0.2"
+bevy_mod_bounding = "0.1"
 bevy_mod_picking = "0.4"
-bevy_asset_loader = { git = "https://github.com/NiklasEi/bevy_asset_loader", branch = "bevy_main" }
+bevy_skybox = "0.5.0"
 ron = "0.6"
 serde = "1.0"
 rand = "0.8"
+
+#not using
 noise = "0.7"
 expression = "0.3"
 expression-num = "0.2"
-derive_more = "0.99.0"
+#derive_more = "0.99"
 
 [dev-dependencies]
-expression-num = "0.2.3"
+expression-num = "0.2"
 
 [features]
 default = ["editor"]
@@ -35,16 +35,20 @@ editor = []
 
 [patch.crates-io]
 # Github versions
-bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" }
+bevy = { git = "https://github.com/bevyengine/bevy", branch = "main" } # main
 bevy_mod_raycast = { git = "https://github.com/slyedoc/bevy_mod_raycast" }
+bevy_mod_bounding = { git = "https://github.com/slyedoc/bevy_mod_bounding" }
 bevy_mod_picking = { git = "https://github.com/slyedoc/bevy_mod_picking" }
 bevy_egui = { git = "https://github.com/slyedoc/bevy_egui", branch = "bevy-main" }
 bevy-inspector-egui = { git = "https://github.com/slyedoc/bevy-inspector-egui/", branch="bevy-main" }
 
+# Local versions
 [patch."https://github.com/slyedoc/bevy_dolly"]
 bevy_dolly = { path = "../bevy_dolly" }
+#[patch."https://github.com/slyedoc/bevy_mod_bounding"]
+#bevy_mod_bounding = { path = "../bevy_mod_bounding" }
 
-# Local versions
+
 #bevy = "bevy"
 #bevy_mod_raycast = { path = "../bevy_mod_raycast" }
 #bevy_mod_picking = { path = "../bevy_mod_picking" }

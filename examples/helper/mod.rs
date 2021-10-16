@@ -31,12 +31,12 @@ pub fn setup_example_scene(
 
 #[derive(Component)]
 pub struct Rotator;
-
+#[allow(dead_code)]
 /// Rotate the meshes to demonstrate how the bounding volumes update
 pub fn rotation_system(
     time: Res<Time>,
     input: Res<Input<KeyCode>>,
-    mut query:Query<&mut Transform, With<Rotator>>,
+    mut query: Query<&mut Transform, With<Rotator>>,
     mut enabled: Local<bool>,
 ) {
     if input.just_pressed(KeyCode::Space) {

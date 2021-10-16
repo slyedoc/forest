@@ -1,8 +1,8 @@
+mod circle;
 mod classic;
 mod lsystem;
 mod plane;
 mod tree;
-mod circle;
 
 use bevy::{
     pbr::render_graph::PBR_PIPELINE_HANDLE,
@@ -11,13 +11,7 @@ use bevy::{
 };
 use bevy_inspector_egui::{Inspectable, InspectableRegistry};
 
-pub use {
-    plane::*,
-    tree::*,
-    classic::*,
-    lsystem::*,
-    circle::*,
-};
+pub use {circle::*, classic::*, lsystem::*, plane::*, tree::*};
 
 /// Generate Meshes on the fly
 /// TODO: Work in progress
@@ -65,12 +59,11 @@ fn mesh_detection_system<T: Component + Into<Mesh>>(
     mut materials: ResMut<Assets<StandardMaterial>>,
     asset_server: Res<AssetServer>,
 ) where
-    T: Component + Copy +  Inspectable,
+    T: Component + Copy + Inspectable,
     Mesh: From<T>,
 {
     for (e, data) in query.iter_mut() {
-
-        let texture_handle= asset_server.load("uv_debug.png");
+        let texture_handle = asset_server.load("uv_debug.png");
         let material_handle = materials.add(StandardMaterial {
             base_color_texture: Some(texture_handle.clone()),
             unlit: true,
@@ -84,8 +77,6 @@ fn mesh_detection_system<T: Component + Into<Mesh>>(
         });
     }
 }
-
-
 
 #[derive(Bundle, Default)]
 pub struct ProceduralBundle<T>
@@ -128,7 +119,7 @@ pub struct UVOffset {
 }
 
 // TODO: Find better way, and using [f32;3] the entire time is not it
-pub fn convert_vec3(given: &[Vec3]) -> Vec<[f32;3]> {
+pub fn convert_vec3(given: &[Vec3]) -> Vec<[f32; 3]> {
     let mut result = Vec::<[f32; 3]>::new();
     for v in given.iter() {
         result.push([v.x, v.y, v.z]);
@@ -137,7 +128,7 @@ pub fn convert_vec3(given: &[Vec3]) -> Vec<[f32;3]> {
 }
 
 // TODO: See above
-pub fn convert_vec2(given: &[Vec2]) -> Vec<[f32;2]> {
+pub fn convert_vec2(given: &[Vec2]) -> Vec<[f32; 2]> {
     let mut result = Vec::<[f32; 2]>::new();
     for v in given.iter() {
         result.push([v.x, v.y]);

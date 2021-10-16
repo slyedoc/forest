@@ -158,7 +158,6 @@ impl TreeMesh {
         //     for branch in grow.iter() {
         //         // what to do
 
-
         //     }
         //     iter_count += 1;
         // }
@@ -239,8 +238,8 @@ impl TreeMesh {
         }
         for (i, ns) in all_normals.iter().enumerate() {
             let mut total = Vec3::ZERO;
-            for (j , v) in ns.iter().enumerate() {
-                 total += all_normals[i][j] * (1.0 / v.y );
+            for (j, v) in ns.iter().enumerate() {
+                total += all_normals[i][j] * (1.0 / v.y);
             }
             self.normals.push(total);
         }

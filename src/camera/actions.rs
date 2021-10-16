@@ -1,4 +1,7 @@
-use bevy::{prelude::*, utils::{StableHashMap, AHashExt}};
+use bevy::{
+    prelude::*,
+    utils::{AHashExt, StableHashMap},
+};
 
 // NOTE: Most actions are not implented for both
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -19,7 +22,6 @@ pub enum Action {
     EnableLook,
 }
 
-
 #[derive(Component)]
 /// Actions our controller can handle
 pub struct ControlActions {
@@ -30,7 +32,6 @@ pub struct ControlActions {
 
 impl Default for ControlActions {
     fn default() -> Self {
-
         let mut keys: StableHashMap<Action, KeyCode> = StableHashMap::with_capacity(10);
         keys.insert(Action::Forward, KeyCode::W);
         keys.insert(Action::Backward, KeyCode::S);
@@ -45,10 +46,13 @@ impl Default for ControlActions {
         keys.insert(Action::EnableLook, KeyCode::Space);
 
         let mut mouse: StableHashMap<Action, MouseButton> = StableHashMap::with_capacity(2);
-        mouse.insert(Action::EnableLook,MouseButton::Right);
-        mouse.insert(Action::Up,MouseButton::Other(1));
+        mouse.insert(Action::EnableLook, MouseButton::Right);
+        mouse.insert(Action::Up, MouseButton::Other(1));
 
-        Self { key_map: keys, mouse_map: mouse }
+        Self {
+            key_map: keys,
+            mouse_map: mouse,
+        }
     }
 }
 
@@ -57,7 +61,7 @@ impl ControlActions {
     pub fn key_pressed(&self, action: Action, input: &Input<KeyCode>) -> bool {
         match self.key_map.get(&action) {
             Some(key) => {
-                if input.pressed (*key) {
+                if input.pressed(*key) {
                     return true;
                 }
                 false
@@ -70,7 +74,7 @@ impl ControlActions {
     pub fn mouse_pressed(&self, action: Action, input: &Input<MouseButton>) -> bool {
         match self.mouse_map.get(&action) {
             Some(button) => {
-                if input.pressed (*button) {
+                if input.pressed(*button) {
                     return true;
                 }
                 false

@@ -20,20 +20,27 @@ fn main() {
 fn setup(
     mut commands: Commands,
 ) {
-    commands.spawn_bundle(SpaceAssetBundle {
-        building: SpaceAsset {
-            space_type: SpaceType::Rock(Rock::LargeA),
-        },
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        ..Default::default()
-    });
+    let ground = build_ground(&mut commands);
 
-    let _player = commands
+    // commands
+    // .spawn_bundle(PbrBundle {
+    //     mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+    //     material: materials.add(Color::GRAY.into()),
+    //     ..Default::default()
+    // });
+
+    // commands.spawn_bundle(SpaceAssetBundle {
+    //     building:  SpaceType::Rock(Rock::LargeA),
+        
+    //     transform: Transform::from_xyz(0.0, 0.0, 0.0),
+    //     ..Default::default()
+    // }).insert(Name::new(format!("{:?}", SpaceType::Astronaut(Astronaut::B) ) ));
+
+
+    let player = commands
         .spawn_bundle(SpaceAssetBundle {
-            building: SpaceAsset {
-                space_type: SpaceType::Craft(Craft::SpeederA),
-            },
-            transform: Transform::from_xyz(0.0, 0.0, -10.0)
+            building: SpaceType::Craft(Craft::SpeederA),
+            transform: Transform::from_xyz(0.0, 0.0, 0.0)
                 .looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         })
@@ -41,14 +48,15 @@ fn setup(
         .insert(Name::new("Player"))
         .id();
 
-    commands
+        commands
         .spawn_bundle(DollyControlCameraBundle {
             rig: Rig::default()
             //.add(Anchor::new(player))
             .add(RigPosition::default())
-            .add(Rotation::new(180.0, -30.0))
-            .add(Smooth::new(0.0, 1.0))
-            .add(Arm::new(Vec3::Z * 8.0)),
+            .add(Rotation::default())
+            .add( LookAt::new(ground, Vec3::ZERO))
+            .add(Smooth::new(1.0, 1.0)),
+            //.add(Arm::new(Vec3::Z * 8.0)),
             transform: Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
              ..Default::default()
         })

@@ -13,11 +13,11 @@ use rand::prelude::*;
 pub struct CityPlugin;
 impl Plugin for CityPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<CityAssets>()
-            .add_event::<GridResetEventButton>()
-            .add_system(rebuild_button)
-            .add_system_to_stage(CoreStage::Last, update_building_system.label("building"))
-            .add_system_to_stage(CoreStage::First, update_city_road_system.after("building"));
+        //app//init_resource::<CityAssets>()
+            //.add_event::<GridResetEventButton>()
+            //.add_system(rebuild_button)
+            //.add_system_to_stage(CoreStage::Last, update_building_system)
+            //.add_system_to_stage(CoreStage::First, update_city_road_system);
 
         let mut registry = app.world.get_resource_mut::<InspectableRegistry>().unwrap();
 
@@ -146,23 +146,8 @@ impl Default for CityRoad {
     }
 }
 
-fn rebuild_button(
-    mut commands: Commands,
-    mut ev_reset: EventReader<GridResetEventButton>,
-    query: Query<(Entity, &Children), (Changed<CityBuilding>, Without<Spawn>)>,
-) {
-    for _ in ev_reset.iter() {
-        // changed and has children, delete children and add spawn
-        for (_, children) in query.iter() {
-            info!("delete building children, add mark spawn");
-            for child_entity in children.iter() {
-                commands.entity(*child_entity).insert(Spawn);
-            }
-        }
-    }
-}
 
-
+#[allow(dead_code)]
 fn update_building_system(
     mut commands: Commands,
     assets: Res<CityAssets>,
@@ -276,7 +261,7 @@ fn update_building_system(
 
 #[derive(Component)]
 pub struct Spawn;
-
+#[allow(dead_code)]
 fn update_city_road_system(
     mut commands: Commands,
     mut query: QuerySet<(
@@ -364,6 +349,8 @@ fn update_city_road_system(
 //         });
 // }
 
+
+
 impl FromWorld for CityAssets {
     fn from_world(world: &mut World) -> Self {
         let ass = world.get_resource::<AssetServer>().unwrap();
@@ -438,7 +425,6 @@ fn spawn_city_handle(
     if let Some(gltf) = assets_gltf.get(handle) {
         let mut t = Transform::from_translation(pos);
         t.scale = Vec3::splat(5.0);
-
         commands
             .spawn_bundle((t, GlobalTransform::identity()))
             .with_children(|parent| {

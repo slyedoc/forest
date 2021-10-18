@@ -18,14 +18,16 @@ impl Plugin for CameraPlugin {
     }
 }
 
-fn init_camera_system(mut commands: Commands, query: Query<Entity, Added<CameraBundleMarker>>) {
+fn init_camera_system(
+    mut commands: Commands,
+    query: Query<Entity, Added<CameraBundleMarker>>
+) {
     for e in query.iter() {
          commands
              .entity(e)
              .insert(bevy_transform_gizmo::GizmoPickSource::default())
         //     .insert(RayCastSource::<SpawnerSet>::new())
              .insert_bundle(bevy_mod_picking::PickingCameraBundle::default());
-            
     }
 }
 

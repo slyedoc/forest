@@ -43,6 +43,7 @@ impl Plugin for EditorPlugin {
                     .with_system(ui::close_windows_system)
                     .with_system(cleanup_system::<EditorCleanup>),
             )
+            .add_startup_system(setup)
             .add_system(action_system)
             .add_system_to_stage(
                 CoreStage::PostUpdate,
@@ -51,6 +52,12 @@ impl Plugin for EditorPlugin {
                     //.after(bevy_mod_picking::PickingSystem::Focus),
             );
     }
+}
+
+pub fn setup(
+    mut world_inspection: ResMut<WorldInspectorParams>,
+) {
+    world_inspection.enabled = true
 }
 
 fn maintain_inspected_entities(

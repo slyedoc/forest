@@ -19,6 +19,17 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+
+    commands
+    .spawn_bundle(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Plane { size: 1000.0 })),
+        material: materials.add(Color::rgb(0.2, 0.4, 0.2).into()),
+        ..Default::default()
+    });
+    //.insert_bundle(PickableBundle::default())
+
+
+    // Camera
     commands.spawn_bundle(CameraBundle {
         transform: Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::Y, Vec3::Y),
         ..Default::default()

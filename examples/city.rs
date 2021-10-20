@@ -1,6 +1,7 @@
 mod helper;
 
 use bevy::prelude::*;
+use bevy_mod_picking::PickableBundle;
 //use bevy_mod_picking::*;
 use forest::prelude::*;
 
@@ -25,8 +26,8 @@ fn setup(
         mesh: meshes.add(Mesh::from(shape::Plane { size: 1000.0 })),
         material: materials.add(Color::rgb(0.2, 0.4, 0.2).into()),
         ..Default::default()
-    });
-    //.insert_bundle(PickableBundle::default())
+    })
+    .insert_bundle(PickableBundle::default());
 
 
     // Camera
@@ -42,6 +43,5 @@ fn setup(
             material: materials.add(Color::rgb(0.2, 0.4, 0.2).into()),
             ..Default::default()
         })
-        //.insert_bundle(PickableBundle::default())
         .insert(Name::new("Ground"));
 }

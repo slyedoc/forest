@@ -3,15 +3,17 @@ mod ground;
 use bevy::math::*;
 use bevy::prelude::*;
 use bevy_inspector_egui::*;
-use bevy_mod_bounding::Bounded;
-use bevy_mod_bounding::aabb;
-use bevy_mod_bounding::debug;
+use strum_macros::EnumIter;
+
 pub use ground::*;
+
+use super::GltfAssetType;
+use super::init_asset_type_system;
 
 pub struct SpacePlugin;
 impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(init_space_type_system);
+        app.add_system(init_asset_type_system::<SpaceType>);
         let mut registry = app.world.get_resource_mut::<InspectableRegistry>().unwrap();
         // registering custom component to be able to edit it in inspector
         registry.register::<SpaceType>();
@@ -20,48 +22,58 @@ impl Plugin for SpacePlugin {
 
 #[derive(Bundle, Default)]
 pub struct SpaceAssetBundle {
-    pub building: SpaceType,
+    pub space_type: SpaceType,
     pub transform: Transform,
     pub global_transform: GlobalTransform,
 }
 
-fn init_space_type_system(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    //mut spawner: ResMut<SceneSpawner>,
-    mut query: Query<(Entity, &mut SpaceType, Option<&Children>), Changed<SpaceType>>,
-) {
-    for (e,  space_type, children_option) in query.iter_mut() {
-        // remove children if they exists
-        if let Some(children) = children_option {
-            for c in children.iter() {
-                commands.entity(*c).despawn_recursive();
-            }
-        }
 
-        let node_path = space_type.get_path();
-        let node: Handle<Scene> = asset_server.load(node_path);
-        commands.entity(e).with_children(|parent| {
-            parent.spawn_scene(node);
-        })
-        .insert(Bounded::<aabb::Aabb>::default())
-        .insert(debug::DebugBounds)
-        ;
-        //spawner.spawn_as_child(node, e);
+#[derive(Component, EnumIter, PartialEq, Debug, Inspectable, Copy, Clone)]
+pub enum SpaceType {
 
-        info!("init space asset: {}", node_path);
+    Character(Character),
+    Barrel(Barrel),
+    Bones,
+    Chimney(Chimney),
+    Corridor(Corridor),
+    Craft(Craft),
+    Crater(Crater),
+    Desk(Desk),
+    Gate(Gate),
+    Hanger(Hanger),
+    Machine(Machine),
+    Meteor(Meteor),
+    Monorail(Monorail),
+    Pipe(Pipe),
+    Platform(Platform),
+    Rail(Rail),
+    Rock(Rock),
+    Rocket(Rocket),
+    Stairs(Stairs),
+    SatelliteDish(SatelliteDish),
+    Supports(Supports),
+    Structure(Structure),
+    Terrain(Terrain),
+    Turret(Turret),
+    Weapon(Weapon),
+    Rover,
+}
+
+impl Default for SpaceType {
+    fn default() -> Self {
+        SpaceType::Character(Character::AstronautA)
     }
 }
 
 // THis but using SpaceAssets lets us start a preload
 // These clones are of the handle only,
-impl SpaceType {
-    pub fn get_path(&self) -> &str {
+impl GltfAssetType for SpaceType {
+    fn get_path(&self) -> &str {
         match self {
-            SpaceType::Alien => "space/alien.glb#Node-alien",
-            SpaceType::Astronaut(a) => match a {
-                Astronaut::A => "space/astronautA.glb#Node-astronautA",
-                Astronaut::B => "space/astronautB.glb#Node-astronautB",
+            SpaceType::Character(c) => match c {
+                Character::AstronautA => "space/astronautA.glb#Node-astronautA",
+                Character::AstronautB => "space/astronautB.glb#Node-astronautB",
+                Character::Alien => "space/alien.glb#Node-alien",
             },
             SpaceType::Barrel(b) => match b {
                 Barrel::Normal => "space/barrel.glb#Node-barrel",
@@ -267,46 +279,17 @@ impl SpaceType {
 // Below this point are just enums to make using these assets easier
 ///////////////////////////////////////////////////////////////
 
-#[derive(Component, Debug, Inspectable, Default, Copy, Clone)]
-pub enum SpaceType {
-    #[default]
+
+
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
+pub enum Character {
     Alien,
-    Astronaut(Astronaut),
-    Barrel(Barrel),
-    Bones,
-    Chimney(Chimney),
-    Corridor(Corridor),
-    Craft(Craft),
-    Crater(Crater),
-    Desk(Desk),
-    Gate(Gate),
-    Hanger(Hanger),
-    Machine(Machine),
-    Meteor(Meteor),
-    Monorail(Monorail),
-    Pipe(Pipe),
-    Platform(Platform),
-    Rail(Rail),
-    Rock(Rock),
-    Rocket(Rocket),
-    Stairs(Stairs),
-    SatelliteDish(SatelliteDish),
-    Supports(Supports),
-    Structure(Structure),
-    Terrain(Terrain),
-    Turret(Turret),
-    Weapon(Weapon),
-    Rover,
-}
-
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
-pub enum Astronaut {
     #[default]
-    A,
-    B,
+    AstronautA,
+    AstronautB,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Barrel {
     #[default]
     Normal,
@@ -314,7 +297,7 @@ pub enum Barrel {
     Rail,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Corridor {
     #[default]
     Normal,
@@ -333,7 +316,7 @@ pub enum Corridor {
     Window,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq, Inspectable, Default, Copy, Clone)]
 pub enum Craft {
     CargoA,
     CargoB,
@@ -346,21 +329,21 @@ pub enum Craft {
     SpeederD,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Crater {
     #[default]
     Normal,
     Large,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Chimney {
     #[default]
     Normal,
     Detailed,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Desk {
     ChairArms,
     Chair,
@@ -371,14 +354,14 @@ pub enum Desk {
     ComputerScreen,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Gate {
     Complex,
     #[default]
     Simple,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Hanger {
     LargeA,
     #[default]
@@ -390,7 +373,7 @@ pub enum Hanger {
     SmallB,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Machine {
     Barrel,
     BarrelLarge,
@@ -401,7 +384,7 @@ pub enum Machine {
     Wireless,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Meteor {
     #[default]
     Normal,
@@ -409,7 +392,7 @@ pub enum Meteor {
     Half,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Monorail {
     TrackCornerLarge,
     TrackCornerSmall,
@@ -426,7 +409,7 @@ pub enum Monorail {
     TrainPassenger,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug,  EnumIter, PartialEq, Inspectable, Default, Copy, Clone)]
 pub enum Pipe {
     CornerDiagonal,
     Corner,
@@ -449,7 +432,7 @@ pub enum Pipe {
     SupportLow,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Platform {
     #[default]
     Center,
@@ -467,7 +450,7 @@ pub enum Platform {
     Straight,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Rail {
     Corner,
     End,
@@ -476,7 +459,7 @@ pub enum Rail {
     Middle,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Rock {
     #[default]
     Normal,
@@ -489,7 +472,7 @@ pub enum Rock {
     CrystalsLargeB,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Rocket {
     #[default]
     BaseA,
@@ -504,7 +487,7 @@ pub enum Rocket {
     TopB,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq, Inspectable, Default, Copy, Clone)]
 pub enum SatelliteDish {
     Detailed,
     #[default]
@@ -512,7 +495,7 @@ pub enum SatelliteDish {
     Large,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Stairs {
     Corner,
     #[default]
@@ -520,7 +503,7 @@ pub enum Stairs {
     Short,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Structure {
     #[default]
     Normal,
@@ -529,14 +512,14 @@ pub enum Structure {
     Diagonal,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Supports {
     High,
     #[default]
     Low,
 }
 
-#[derive(Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq, Inspectable, Default, Copy, Clone)]
 pub enum Terrain {
     #[default]
     Normal,
@@ -555,14 +538,14 @@ pub enum Terrain {
     Side,
 }
 
-#[derive(Component, Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Turret {
     Double,
     #[default]
     Single,
 }
 
-#[derive(Component, Debug, Inspectable, Default, Copy, Clone)]
+#[derive(Debug, EnumIter, PartialEq,  Inspectable, Default, Copy, Clone)]
 pub enum Weapon {
     #[default]
     Gun,

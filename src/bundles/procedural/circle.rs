@@ -77,10 +77,6 @@ impl From<Circle> for Mesh {
             uvs.push(vec2(x, y));
         }
 
-        info!("positions: {}", positions.len());
-        info!("normals: {}", normals.len());
-        info!("indices: {}", indices.len());
-
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
         mesh.set_indices(Some(Indices::U32(indices)));
         mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, convert_vec3(&positions));

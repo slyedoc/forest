@@ -97,9 +97,7 @@ impl Tree {
             b = self.rseed as f32;
             self.rseed += 1;
         }
-        let result = (b + b * b).cos().abs();
-        info!("result: {}", result);
-        result
+        (b + b * b).cos().abs()
     }
 }
 
@@ -189,9 +187,6 @@ impl TreeMesh {
         }
 
         let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
-        info!("positions: {}", positions.len());
-        info!("normals: {}", normals.len());
-        info!("indices: {}", indices.len());
 
         mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, positions);
         mesh.set_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
@@ -246,7 +241,6 @@ impl TreeMesh {
     }
 
     pub fn get_branch(&mut self, id: usize) -> &mut Branch {
-        info!("get_branch: {}", id);
         self.branches.get(id)
     }
 
@@ -756,7 +750,6 @@ impl BranchTable {
     }
 
     pub fn get(&mut self, key: usize) -> &mut Branch {
-        info!("key: {}", key);
         self.table.get_mut(&key).expect("Branch Key not found")
     }
 }

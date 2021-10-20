@@ -82,10 +82,6 @@ impl From<Plane> for Mesh {
             uvs.push(vec2(x, y));
         }
 
-        info!("positions: {}", vertices.len());
-        info!("normals: {}", normals.len());
-        info!("indices: {}", indices.len());
-
         if shape.debug {
             return debug_mesh(&vertices, triangle_count);
         }
@@ -120,7 +116,6 @@ fn debug_mesh(positions: &[Vec3], triangle_count: usize) -> Mesh {
         uvs.push([0.5, 0.5]);
     }
 
-    info!("{:?}", positions);
     let mut mesh = Mesh::new(bevy::render::pipeline::PrimitiveTopology::LineStrip);
     mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, convert_vec3(positions));
     mesh.set_attribute(Mesh::ATTRIBUTE_NORMAL, convert_vec3(&normals));

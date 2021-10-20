@@ -1,54 +1,55 @@
-pub mod forest;
 pub mod menu;
-pub mod tree_test;
-pub mod turtle_test;
-use crate::bundles::*;
-use bevy_dolly::prelude::*;
+pub mod solar_system;
+pub mod astroid;
+pub mod spider_attack;
+pub mod lsystem_test;
+pub mod space_asset_preview;
+pub mod city_asset_preview;
+use space_asset_preview::*;
+use city_asset_preview::*;
+use spider_attack::*;
 
 use bevy::{app::PluginGroupBuilder, prelude::*};
-pub use {forest::*, menu::*, tree_test::*, turtle_test::*};
-#[derive(Component)]
-struct StateCleanup;
+use menu::MenuPlugin;
+use lsystem_test::LSystemPlugin;
+use solar_system::SolarSystemPlugin;
 
-pub struct StatePlugins;
-impl PluginGroup for StatePlugins {
+use crate::AppState;
+
+use astroid::AstroidPlugin;
+
+
+pub struct ScenePlugins;
+impl PluginGroup for ScenePlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group.add(MenuPlugin);
-        group.add(ForestPlugin);
-        group.add(TreeTestPlugin);
-        group.add(TurtleTestPlugin);
-        //group.add(DragonCurvePlugin);
+        group.add(SolarSystemPlugin);
+        group.add(AstroidPlugin);
+        group.add(SpiderAttackPlugin);
+
+
+        group.add(LSystemPlugin);
+        group.add(SpacePreviewPlugin);
+        group.add(CityAssetPreviewPlugin);
     }
 }
 
-pub fn setup_default_scene(mut commands: Commands) {
-    // Camera
-    commands
-        .spawn_bundle(DollyControlCameraBundle {
-            transform: Transform::from_xyz(0.0, 2.0, -5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..Default::default()
-        })
-        .insert(StateCleanup)
-        .insert(Name::new("Camera"));
+pub fn back_to_menu_system(mut state: ResMut<State<AppState>>, mut keys: ResMut<Input<KeyCode>>) {
+    if keys.pressed(KeyCode::Escape) {
+        state.set(AppState::Menu).unwrap();
 
-    // Light
-    commands
-        .spawn_bundle(PointLightBundle {
-            transform: Transform::from_xyz(0.0, 2.0, -5.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..Default::default()
-        })
-        .insert(StateCleanup)
-        .insert(Name::new("Sun"));
+        keys.reset(KeyCode::Escape);
+    }
+}
 
-    // Tertian
-    commands
-        .spawn_bundle(TertianBundle::default())
-        .insert(StateCleanup)
-        .insert(Name::new("Tertian"));
+pub fn cleanup_system<T: Component>(mut commands: Commands, q: Query<Entity, With<T>>) {
+    for e in q.iter() {
+        commands.entity(e).despawn_recursive();
+    }
+}
 
-    // ui camera
-    commands
-        .spawn_bundle(UiCameraBundle::default())
-        .insert(StateCleanup)
-        .insert(Name::new("UI Camera"));
+pub fn clear_system(mut commands: Commands, q: Query<Entity>) {
+    for e in q.iter() {
+        commands.entity(e).despawn_recursive();
+    }
 }

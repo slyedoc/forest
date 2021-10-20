@@ -13,19 +13,14 @@ mod style;
 pub mod prelude {
     pub use crate::{
         bundles::*, camera::*, editor::*, environment::*, helper::*, spawner::*,
+        scenes::*, style::*,
         AppPlugin, AppState,
     };
 }
 
+use bevy_dolly::DollyPlugin;
 use bevy_mod_bounding::{BoundingVolumePlugin, aabb};
-use bundles::BundlePlugins;
-use camera::*;
-use editor::*;
-use helper::*;
-use prelude::EnvironmentPlugin;
-use scenes::*;
-use spawner::SpawnerPlugin;
-use style::StylePlugin;
+use prelude::*;
 
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
@@ -37,7 +32,7 @@ impl Plugin for AppPlugin {
             .insert_resource(ClearColor(Color::BLACK))
             .insert_resource(WindowDescriptor {
                 title: "Forests".to_string(),
-                vsync: true, // disable to break 60 fps
+                vsync: false, // disable to break 60 fps
                 ..Default::default()
             })
             .add_plugins(DefaultPlugins)
@@ -47,9 +42,11 @@ impl Plugin for AppPlugin {
                 ..Default::default()
             })
             .add_plugin(WorldInspectorPlugin::new())
-            .add_plugin(bevy_mod_picking::DefaultPickingPlugins)
-            .add_plugin(bevy_transform_gizmo::TransformGizmoPlugin)
+            //.add_plugin(bevy_transform_gizmo::TransformGizmoPlugin)
+            .add_plugin(DollyPlugin)
             .add_plugin(BoundingVolumePlugin::<aabb::Aabb>::default())
+            //.add_plugin(BoundingVolumePlugin::<sphere::BSphere>::default())
+            //.add_plugin(BoundingVolumePlugin::<obb::Obb>::default())
             //.add_plugin(DebugLinesPlugin)
             // .insert_resource(DebugLines {
             //     depth_test: true,
@@ -59,33 +56,39 @@ impl Plugin for AppPlugin {
             //.add_plugin(DefaultPickingPlugins)
             //.add_plugin(DebugCursorPickingPlugin)
             //.add_plugin(DebugEventsPickingPlugin)
+
             .add_plugin(FrameTimeDiagnosticsPlugin)
+            
             // Local Plugins
             .add_plugin(CameraPlugin)
-            .add_plugin(EnvironmentPlugin)
             .add_plugin(EditorPlugin)
             .add_plugin(SpawnerPlugin)
             .add_plugin(StylePlugin)
             .add_plugin(HelperPlugin)
-            .add_plugins(BundlePlugins);
+            .add_plugin(BundlePlugin);
     }
 }
+
+
+
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
     Menu,
-    Forest,
-    TreeTest,
-    TurtleTest,
+    SolarSystem,
+    Astroid,
+    SpiderAttack,
+
+    // Tests
+    LSystemTest,
+    SpaceAssetPreview,
+    CityAssetPreview,
 }
 
 pub fn run() {
     App::new()
         .add_state(AppState::Menu)
         .add_plugin(AppPlugin)
-        .add_plugins(StatePlugins)
+        .add_plugins(ScenePlugins)
         .run();
-    //.add_plugin(BoundingVolumePlugin::<sphere::BSphere>::default())
-    //.add_plugin(BoundingVolumePlugin::<aabb::Aabb>::default())
-    //.add_plugin(BoundingVolumePlugin::<obb::Obb>::default());
 }

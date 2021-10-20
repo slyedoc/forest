@@ -1,8 +1,9 @@
 mod ui;
 
-use crate::helper::*;
+use crate::prelude::*;
 use bevy::{ecs::schedule::ShouldRun, prelude::*};
 use bevy_inspector_egui::{*, plugin::InspectorWindows};
+use std::fmt::Debug;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
 pub enum EditorState {
@@ -17,7 +18,10 @@ struct Inspector {
 }
 
 #[derive(Inspectable, Default)]
-pub struct EditorWindows {
+pub struct Editor {
+    pub draw_bounds: bool,
+
+    // Windows
     pub spawner: bool,
     pub egui_settings: bool,
     pub egui_inspection: bool,
@@ -31,10 +35,10 @@ impl Plugin for EditorPlugin {
         info!("Toggle World Inspector - F11");
 
         #[cfg(feature = "editor")]
-        app.init_inspector_resource::<EditorWindows>()
+        app.init_inspector_resource::<Editor>()
             .init_inspector_resource::<Inspector>()
             .add_state(EditorState::Disabled)
-            .add_system_set(SystemSet::on_enter(EditorState::Playing).with_system(setup_playing))
+            .add_system_set(SystemSet::on_enter(EditorState::Playing).with_system(setup))
             .add_system_set(
                 SystemSet::on_update(EditorState::Playing).with_system(ui::toolbar_system),
             )
@@ -60,6 +64,7 @@ pub fn setup(
     world_inspection.enabled = true
 }
 
+
 fn maintain_inspected_entities(
     mut commands: Commands,
     mut inspector: ResMut<Inspector>,
@@ -83,30 +88,14 @@ fn maintain_inspected_entities(
     }
 }
 
-
 #[derive(Component)]
 struct EditorCleanup;
-
-fn setup_playing(mut _commands: Commands) {
-    // commands
-    //     .spawn_bundle(PerspectiveCameraBundle {
-    //         transform: Transform::from_xyz(100.0, 100.0, 600.0),
-    //         ..Default::default()
-    //     })
-    //     .insert(Name::new("Editor 3d Camera"))
-    //     .insert(EditorCleanup);
-
-    // commands
-    //     .spawn_bundle(UiCameraBundle::default())
-    //     .insert(Name::new("Editor Ui Camera"))
-    //     .insert(EditorCleanup);
-}
 
 fn action_system(
     keyboard_input: Res<Input<KeyCode>>,
     mut state: ResMut<State<EditorState>>,
     mut world_inspection: ResMut<WorldInspectorParams>,
-    mut windows: ResMut<EditorWindows>,
+    mut windows: ResMut<Editor>,
     mut inspector_windows: ResMut<InspectorWindows>,
 ) {
     if keyboard_input.just_pressed(KeyCode::F12) {
@@ -119,7 +108,6 @@ fn action_system(
     if keyboard_input.just_pressed(KeyCode::F11) {
        let inspector = inspector_windows.window_data_mut::<Inspector>();
        inspector.visible = !inspector.visible;
-
     }
     if keyboard_input.just_pressed(KeyCode::F10) {
         world_inspection.enabled = !world_inspection.enabled;

@@ -1,5 +1,8 @@
-use crate::{helper::cleanup_system, style::ButtonAssets, AppState};
 use bevy::{app::AppExit, prelude::*};
+use strum_macros::{AsRefStr, EnumIter};
+use strum::IntoEnumIterator;
+
+use crate::prelude::*;
 
 /// Main Menu
 pub struct MenuPlugin;
@@ -7,51 +10,48 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_system_set(SystemSet::on_enter(AppState::Menu).with_system(setup))
             .add_system_set(
-                SystemSet::on_update(AppState::Menu).with_system(menu_interaction_system),
+                SystemSet::on_update(AppState::Menu)
+                .with_system(menu_interaction_system)
+                .with_system(exit_system),
             )
-            .add_system_set(SystemSet::on_update(AppState::Menu).with_system(exit_system))
+            .add_system_set(SystemSet::on_update(AppState::Menu))
             .add_system_set(
-                SystemSet::on_exit(AppState::Menu).with_system(cleanup_system::<MenuCleanup>),
+                SystemSet::on_exit(AppState::Menu).with_system(clear_system),
             );
     }
 }
 
-#[derive(Component)]
-struct MenuCleanup;
-
-#[derive(Component)]
+#[derive(Component, EnumIter, AsRefStr)]
 enum MenuButton {
-    Forest,
-    TreeTest,
-    TurtleTest,
-    Exit,
-}
+    #[strum(serialize = "Spider Attack")]
+    SpiderAttack,
 
-impl MenuButton {
-    fn name(&self) -> &str {
-        match self {
-            MenuButton::Forest => "Forest",
-            MenuButton::TreeTest => "Tree Test",
-            MenuButton::TurtleTest => "Turtle Test",
-            MenuButton::Exit => "Exit",
-        }
-    }
+    #[strum(serialize = "Solar System")]
+    SolarSystem,
+
+    #[strum(serialize = "Astroid")]
+    Astroid,
+
+    #[strum(serialize = "LSystem Test")]
+    LSystemTest,
+    #[strum(serialize = "Space Asset Preview")]
+    SpaceAssetPreview,
+    #[strum(serialize = "City Asset Preview")]
+    CityAssetPreview,
+    Exit,
 }
 
 fn setup(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    button_materials: Res<ButtonAssets>,
+    button_assets: Res<ButtonAssets>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // ui camera
-    commands
-        .spawn_bundle(UiCameraBundle::default())
-        .insert(MenuCleanup);
+    commands.spawn_bundle(UiCameraBundle::default());
 
     // Create buttons
     let style = TextStyle {
-        font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+        font: button_assets.fira_sans.clone(),
         font_size: 40.0,
         color: Color::rgb(0.9, 0.9, 0.9),
     };
@@ -67,42 +67,30 @@ fn setup(
             ..Default::default()
         })
         .with_children(|parent| {
-            create_button(parent, &button_materials, &style, MenuButton::Forest);
-            create_button(parent, &button_materials, &style, MenuButton::TreeTest);
-            create_button(parent, &button_materials, &style, MenuButton::TurtleTest);
-            create_button(parent, &button_materials, &style, MenuButton::Exit);
+            for b in MenuButton::iter() {
+                parent.spawn_bundle(ButtonBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(500.0), Val::Px(65.0)),
+                        margin: Rect::all(Val::Auto),
+                        justify_content: JustifyContent::Center,
+                        // vertically center child text
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    material: button_assets.normal.clone(),
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent.spawn_bundle(TextBundle {
+                        text: Text::with_section(   b.as_ref(), style.clone(), Default::default()),
+                        ..Default::default()
+                    });
+                })
+                .insert(Name::new(format!("{} Button", b.as_ref())))
+                .insert(b);
+            }
         })
-        .insert(Name::new("Menu"))
-        .insert(MenuCleanup);
-}
-
-fn create_button(
-    parent: &mut ChildBuilder,
-    button_materials: &ButtonAssets,
-    style: &TextStyle,
-    button: MenuButton,
-) {
-    parent
-        .spawn_bundle(ButtonBundle {
-            style: Style {
-                size: Size::new(Val::Px(300.0), Val::Px(65.0)),
-                margin: Rect::all(Val::Auto),
-                justify_content: JustifyContent::Center,
-                // vertically center child text
-                align_items: AlignItems::Center,
-                ..Default::default()
-            },
-            material: button_materials.normal.clone(),
-            ..Default::default()
-        })
-        .with_children(|parent| {
-            parent.spawn_bundle(TextBundle {
-                text: Text::with_section(button.name(), style.clone(), Default::default()),
-                ..Default::default()
-            });
-        })
-        .insert(Name::new(format!("{} Button", button.name())))
-        .insert(button);
+        .insert(Name::new("Menu"));
 }
 
 fn menu_interaction_system(
@@ -119,9 +107,12 @@ fn menu_interaction_system(
             Interaction::Clicked => {
                 *material = button_materials.pressed.clone();
                 match *button {
-                    MenuButton::Forest => state.set(AppState::Forest).unwrap(),
-                    MenuButton::TreeTest => state.set(AppState::TreeTest).unwrap(),
-                    MenuButton::TurtleTest => state.set(AppState::TurtleTest).unwrap(),
+                    MenuButton::SolarSystem => state.set(AppState::SolarSystem).unwrap(),
+                    MenuButton::Astroid => state.set(AppState::Astroid).unwrap(),
+                    MenuButton::LSystemTest => state.set(AppState::LSystemTest).unwrap(),
+                    MenuButton::SpaceAssetPreview => state.set(AppState::SpaceAssetPreview).unwrap(),
+                    MenuButton::CityAssetPreview => state.set(AppState::CityAssetPreview).unwrap(),
+                    MenuButton::SpiderAttack => state.set(AppState::SpiderAttack).unwrap(),
                     MenuButton::Exit => exit.send(AppExit),
                 }
             }

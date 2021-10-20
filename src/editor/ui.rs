@@ -9,7 +9,7 @@ use bevy_egui::{
 };
 use bevy_inspector_egui::{plugin::InspectorWindows, WorldInspectorParams};
 
-use super::EditorWindows;
+use super::Editor;
 
 #[allow(clippy::too_many_arguments)]
 pub fn toolbar_system(
@@ -19,7 +19,7 @@ pub fn toolbar_system(
     mut world_inspection: ResMut<WorldInspectorParams>,
     mut inspector_windows: ResMut<InspectorWindows>,
     diagnostics: Res<Diagnostics>,
-    mut windows: ResMut<EditorWindows>,
+    mut windows: ResMut<Editor>,
 ) {
     use bevy_inspector_egui::egui::Window;
 

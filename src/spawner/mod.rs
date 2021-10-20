@@ -27,7 +27,7 @@ impl Plugin for SpawnerPlugin {
 pub fn spawner_window_system(
     mut commands: Commands,
     egui_ctx: Res<EguiContext>,
-    mut windows: ResMut<EditorWindows>,
+    mut windows: ResMut<Editor>,
 ) {
     use bevy_inspector_egui::egui::Window;
 
@@ -35,62 +35,32 @@ pub fn spawner_window_system(
         .open(&mut windows.spawner)
         .scroll(true)
         .show(egui_ctx.ctx(), |ui| {
-            let mut building: Option<BuildingType> = None;
+            let mut building: Option<CityType> = None;
             //ui.label("Add Building");
             CollapsingHeader::new("Buildings")
                 .default_open(true)
                 .show(ui, |ui| {
                     if ui.button("Low").clicked() {
-                        building = Some(BuildingType::Low);
+                        building = Some(CityType::Low(Low::BuildingA));
                     }
                     if ui.button("Large").clicked() {
-                        building = Some(BuildingType::Large);
+                        building = Some(CityType::Large(Large::BuildingA));
                     }
                     if ui.button("Small").clicked() {
-                        building = Some(BuildingType::Small);
+                        building = Some(CityType::Small(Small::BuildingA));
                     }
                     if ui.button("Skyscraper").clicked() {
-                        building = Some(BuildingType::Skyscraper);
+                        building = Some(CityType::Skyscraper(Skyscraper::BuildingA));
                     }
                 });
 
-            if let Some(b) = building {
-                commands.spawn_bundle(CityBuildingBundle {
-                    building: CityBuilding {
-                        building_type: b,
-                        index: Some(0),
-                    },
+            if let Some(t) = building {
+                commands.spawn_bundle(CityAssetBundle {
+                    city_type: t,
                     ..Default::default()
                 });
             }
 
-            let mut block: Option<BuildingType> = None;
-            CollapsingHeader::new("Road")
-                .default_open(true)
-                .show(ui, |ui| {
-                    if ui.button("Low").clicked() {
-                        block = Some(BuildingType::Low);
-                    }
-                    if ui.button("Large").clicked() {
-                        block = Some(BuildingType::Large);
-                    }
-                    if ui.button("Small").clicked() {
-                        block = Some(BuildingType::Small);
-                    }
-                    if ui.button("Skyscraper").clicked() {
-                        block = Some(BuildingType::Skyscraper);
-                    }
-                });
-
-            if let Some(b) = block {
-                commands.spawn_bundle(CityRoadBundle {
-                    block: CityRoad {
-                        building_type: b,
-                        ..Default::default()
-                    },
-                    ..Default::default()
-                });
-            }
         });
 }
 // This is a unit struct we will use to mark our generic `RayCastMesh`s and `RayCastSource` as part

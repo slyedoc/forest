@@ -2,6 +2,8 @@ mod actions;
 mod bundle;
 pub use actions::*;
 use bevy::{input::mouse::MouseMotion, prelude::*};
+use bevy_mod_picking::RayCastSource;
+use bevy_mod_raycast::{DefaultRaycastingPlugin, RayCastMethod, RaycastSystem};
 //use bevy_mod_picking::RayCastSource;
 pub use bundle::*;
 
@@ -14,7 +16,12 @@ impl Plugin for CameraPlugin {
             // These are only use for camera control system
             .init_resource::<CameraConfig>()
             .add_system_to_stage(CoreStage::PreUpdate, update_camera_system)
-            .add_system(init_camera_system);
+            .add_system(init_camera_system)
+            .add_plugin(DefaultRaycastingPlugin::<SelectionRaycastSet>::default())
+            .add_system_to_stage(
+                CoreStage::PreUpdate,
+                update_raycast_with_cursor.before(RaycastSystem::BuildRays),
+            );
     }
 }
 
@@ -31,6 +38,23 @@ fn init_camera_system(
     }
 }
 
+// This is a unit struct we will use to mark our generic `RayCastMesh`s and `RayCastSource` as part
+// of the same group, or "RayCastSet". For more complex use cases, you might use this to associate
+// some meshes with one ray casting source, and other meshes with a different ray casting source."
+pub struct SelectionRaycastSet;
+
+// Update our `RayCastSource` with the current cursor position every frame.
+fn update_raycast_with_cursor(
+    mut cursor: EventReader<CursorMoved>,
+    mut query: Query<&mut RayCastSource<SelectionRaycastSet>>,
+) {
+    for mut pick_source in &mut query.iter_mut() {
+        // Grab the most recent cursor event if it exists:
+        if let Some(cursor_latest) = cursor.iter().last() {
+            pick_source.cast_method = RayCastMethod::Screenspace(cursor_latest.position);
+        }
+    }
+}
 /// Configuration Resource for Dolly Controlled Rigs
 // TODO: We could store the targeting data here, would really make user
 // interaction

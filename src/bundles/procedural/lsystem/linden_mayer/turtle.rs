@@ -2,7 +2,6 @@ use std::f32::consts::PI;
 use std::ops::{Add, Neg};
 
 use bevy::math::*;
-use bevy::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Position(f32, f32);
@@ -218,11 +217,8 @@ impl Canvas {
         let (min_width, min_height) = (100.0, 100.0);
         let width = bounds.width().max(min_width);
         let height = bounds.height().max(min_height);
-        info!("size: {} x {}", width, height);
 
         let scale = vec2(size / width, size / height);
-
-        info!("scale: {}", scale);
 
         let mut lines = Vec::new();
         let mut last = Vec2::ZERO;

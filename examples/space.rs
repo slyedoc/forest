@@ -21,18 +21,14 @@ fn setup(
     mut commands: Commands,
 ) {
     commands.spawn_bundle(SpaceAssetBundle {
-        building: SpaceAsset {
-            space_type: SpaceType::Rock(Rock::LargeA),
-        },
+        space_type: SpaceType::Rock(Rock::LargeA),
         transform: Transform::from_xyz(0.0, 0.0, 0.0),
         ..Default::default()
     });
 
     let _player = commands
         .spawn_bundle(SpaceAssetBundle {
-            building: SpaceAsset {
-                space_type: SpaceType::Craft(Craft::SpeederA),
-            },
+            space_type: SpaceType::Craft(Craft::SpeederA),
             transform: Transform::from_xyz(0.0, 0.0, -10.0)
                 .looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()

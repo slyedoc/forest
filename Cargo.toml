@@ -29,6 +29,7 @@ strum_macros = "0.22"
 noise = "0.7"
 expression = "0.3"
 expression-num = "0.2"
+wasm-bindgen = { version = "0.2.74" }
 #derive_more = "0.99"
 
 [dev-dependencies]
@@ -39,9 +40,12 @@ default = ["editor"]
 editor = []
 
 [patch.crates-io]
+
 # Github versions
 bevy = { git = "https://github.com/slyedoc/bevy", branch = "gltf_names" } # main
 #bevy = { path = "../bevy" }
+
+bevy_egui = { git = "https://github.com/slyedoc/bevy_egui", branch = "bevy-main"}
 
 bevy_mod_raycast = { git = "https://github.com/slyedoc/bevy_mod_raycast" }
 #bevy_mod_raycast = { path = "../bevy_mod_raycast" }
@@ -52,7 +56,7 @@ bevy_mod_bounding = { git = "https://github.com/slyedoc/bevy_mod_bounding" }
 bevy_mod_picking = { git = "https://github.com/slyedoc/bevy_mod_picking" }
 #bevy_mod_picking = { path = "../bevy_mod_picking" }
 
-bevy_egui = { git = "https://github.com/slyedoc/bevy_egui", branch = "bevy-main" }
+
 bevy-inspector-egui = { git = "https://github.com/slyedoc/bevy-inspector-egui/", branch="bevy-main" }
 
 #[patch."https://github.com/slyedoc/bevy_dolly"]

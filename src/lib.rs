@@ -20,7 +20,9 @@ pub mod prelude {
 
 use bevy_dolly::DollyPlugin;
 use bevy_mod_bounding::{BoundingVolumePlugin, aabb};
+use wasm_bindgen::prelude::*;
 use prelude::*;
+
 
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
 use bevy_inspector_egui::{WorldInspectorParams, WorldInspectorPlugin};
@@ -85,10 +87,12 @@ pub enum AppState {
     CityAssetPreview,
 }
 
+#[wasm_bindgen]
 pub fn run() {
     App::new()
         .add_state(AppState::Menu)
         .add_plugin(AppPlugin)
         .add_plugins(ScenePlugins)
+            // when building for Web, use WebGL2 rendering
         .run();
 }

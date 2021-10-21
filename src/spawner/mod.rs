@@ -29,9 +29,8 @@ pub fn spawner_window_system(
     egui_ctx: Res<EguiContext>,
     mut windows: ResMut<Editor>,
 ) {
-    use bevy_inspector_egui::egui::Window;
 
-    Window::new("Spawner")
+    bevy_egui::egui::Window::new("Spawner")
         .open(&mut windows.spawner)
         .scroll(true)
         .show(egui_ctx.ctx(), |ui| {

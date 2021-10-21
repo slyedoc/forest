@@ -52,6 +52,8 @@ fn init_asset_type_system<T: Component + GltfAssetType + Debug>(
             }
         }
 
+        // Get the asset path and load it as a child, mark it to get a
+        // bounding volume
         let node_path = asset_type.get_path();
         let node: Handle<Scene> = asset_server.load(node_path);
         commands
@@ -61,6 +63,7 @@ fn init_asset_type_system<T: Component + GltfAssetType + Debug>(
             })
             .insert(GenerateBounding);
 
+        // Give assets a default name if they don't already have one
         if name_option.is_none() {
             commands
                 .entity(e)
@@ -87,8 +90,8 @@ pub fn update_bounds_system(
     // will become hashmap of entities with GenerateBounding and there Aabb
     let mut volume_results: HashMap<Entity, Aabb> = HashMap::default();
 
-    // since we can't ask for children components, we will have to search for them
-    // we will store the root entity that we actually care about
+    // since we can't ask for entire children heirarch, we will have to search for them
+    // we will store the (top level parent the child belongs to,  and itself)
     let mut children_to_process = Vec::<(Entity, Entity)>::default();
 
     // build first layer of the entity hierarch
@@ -105,14 +108,18 @@ pub fn update_bounds_system(
         // get the global transform and children of current child
         let (transform, children_option, mesh_option) =
             query.q1().get(child_entity).unwrap();
+        
         // add children to be process
         if let Some(children) = children_option {
             for c in children.iter() {
                 children_to_process.push((parent_entity, *c));
             }
         }
-        // if we have a mesh, figure out its bounds and add it volume_results
+        
+        // if we have a mesh, figure out its bounds and add it the results results
         if let Some(mesh_handle) = mesh_option {
+
+            // NOTE: This logic is from bevy_mod_bounding
             let transform_matrix = Transform {
                 translation: Vec3::ZERO,
                 rotation: transform.rotation,

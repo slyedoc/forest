@@ -193,7 +193,6 @@ fn integrate(mut query: Query<(&mut Acceleration, &mut Transform, &mut LastPos)>
     for (mut acceleration, mut transform, mut last_pos) in query.iter_mut() {
         // verlet integration
         // x(t+dt) = 2x(t) - x(t-dt) + a(t)dt^2 + O(dt^4)
-        
         let new_pos =
             transform.translation + transform.translation - last_pos.0 + acceleration.0 * dt_sq;
         acceleration.0 = Vec3::ZERO;

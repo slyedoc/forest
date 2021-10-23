@@ -306,6 +306,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_config_cam"
+version = "0.1.3"
+source = "git+https://github.com/slyedoc/bevy_config_cam?branch=bevy-main#a1ebe2c7d11d71a1cbeaf8f4a90c4b8079808703"
+dependencies = [
+ "bevy",
+ "rand 0.8.4",
+ "strum",
+ "strum_macros",
+]
+
+[[package]]
 name = "bevy_core"
 version = "0.5.0"
 source = "git+https://github.com/slyedoc/bevy?branch=gltf_names#76c1d5675584950fec9504a72a5a1bb3f0e9df7c"
@@ -613,7 +624,7 @@ dependencies = [
  "bevy_reflect",
  "bevy_transform",
  "bevy_utils",
- "ron",
+ "ron 0.6.5",
  "serde",
  "thiserror",
  "uuid",
@@ -1537,6 +1548,7 @@ dependencies = [
  "bevy",
  "bevy-inspector-egui",
  "bevy-shadows",
+ "bevy_config_cam",
  "bevy_dolly",
  "bevy_egui",
  "bevy_mod_bounding",
@@ -1547,7 +1559,7 @@ dependencies = [
  "expression-num",
  "noise",
  "rand 0.8.4",
- "ron",
+ "ron 0.7.0",
  "serde",
  "strum",
  "strum_macros",
@@ -3016,6 +3028,17 @@ name = "ron"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "45005aa836116903a49cf3461474da697cfe66221762c6e95871092009ec86d6"
+dependencies = [
+ "base64",
+ "bitflags",
+ "serde",
+]
+
+[[package]]
+name = "ron"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1b861ecaade43ac97886a512b360d01d66be9f41f3c61088b42cedf92e03d678"
 dependencies = [
  "base64",
  "bitflags",

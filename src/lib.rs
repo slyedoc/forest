@@ -17,11 +17,11 @@ pub mod prelude {
         AppPlugin, AppState,
     };
 }
-
 use bevy_dolly::DollyPlugin;
 use bevy_mod_bounding::{BoundingVolumePlugin, aabb};
 use wasm_bindgen::prelude::*;
 use prelude::*;
+use bevy_config_cam::*;
 
 
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, prelude::*};
@@ -46,6 +46,7 @@ impl Plugin for AppPlugin {
             .add_plugin(WorldInspectorPlugin::new())
             //.add_plugin(bevy_transform_gizmo::TransformGizmoPlugin)
             .add_plugin(DollyPlugin)
+            .add_plugin(ConfigCam)
             .add_plugin(BoundingVolumePlugin::<aabb::Aabb>::default())
             //.add_plugin(BoundingVolumePlugin::<sphere::BSphere>::default())
             //.add_plugin(BoundingVolumePlugin::<obb::Obb>::default())

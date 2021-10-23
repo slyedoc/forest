@@ -67,15 +67,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug example 'city'",
+            "name": "Debug example 'physics'",
             "cargo": {
                 "args": [
                     "build",
-                    "--example=city",
+                    "--example=physics",
                     "--package=forest"
                 ],
                 "filter": {
-                    "name": "city",
+                    "name": "physics",
                     "kind": "example"
                 }
             },

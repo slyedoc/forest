@@ -1,5 +1,4 @@
-use bevy::{math::*, prelude::*};
-use bevy_dolly::prelude::*;
+use bevy::{math::*, prelude::*, render::camera::Camera};
 
 use crate::prelude::*;
 
@@ -9,46 +8,34 @@ impl Plugin for AstroidPlugin {
         app.add_system_set(
             SystemSet::on_enter(AppState::Astroid)
                 .with_system(setup)
-                .with_system(light_default_setup)
-        ).add_system_set(
-            SystemSet::on_update(AppState::Astroid)
-                .with_system(back_to_menu_system)
+                .with_system(light_default_setup),
         )
-        .add_system_set(
-            SystemSet::on_exit(AppState::Astroid)
-                .with_system(clear_system)
-        );
+        .add_system_set(SystemSet::on_update(AppState::Astroid).with_system(back_to_menu_system))
+        .add_system_set(SystemSet::on_exit(AppState::Astroid).with_system(clear_system));
     }
 }
 
 fn setup(mut commands: Commands) {
-    
-    let player = commands.spawn_bundle(SpaceAssetBundle {
-        space_type: SpaceType::Craft(Craft::SpeederA),
-        transform: Transform::from_xyz(0.0 , 0.0 , 0.0),
-        ..Default::default()
-    })
-    .insert(Name::new("Player"))
-    .id();
-    
-    // Camera
-    commands
-        .spawn_bundle(DollyControlCameraBundle {
-            rig: Rig::default()
-                //.add(RigPosition::default())
-                .add(Anchor::new(player))
-                .add(Rotation::default())
-                .add( Arm::new(Vec3::Z * 10.0))
-                .add(Smooth::new(1.0, 1.0)),
-            transform: Transform::from_xyz(-5.0, 5.0, -5.0)
-                .looking_at(vec3(10.0, 0.0, 10.0), Vec3::Y),
+    let _player = commands
+        .spawn_bundle(SpaceAssetBundle {
+            space_type: SpaceType::Craft(Craft::SpeederA),
+            transform: Transform::from_xyz(0.0, 0.0, 0.0),
             ..Default::default()
         })
-        .insert_bundle(bevy_mod_picking::PickingCameraBundle::default())
-        .insert(bevy_transform_gizmo::GizmoPickSource::default())
-        .insert(Name::new("Camera"));
+        .insert(Name::new("Player"))
+        .id();
 
-    
+    // Camera
+    commands
+        .spawn_bundle(PerspectiveCameraBundle {
+            camera: Camera {
+                name: Some("Camera3d".to_string()),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(-2.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..Default::default()
+        })
+        .insert(Name::new("Camera"));
 }
 
 pub fn back_to_menu_system(mut state: ResMut<State<AppState>>, mut keys: ResMut<Input<KeyCode>>) {

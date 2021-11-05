@@ -1,5 +1,5 @@
-use bevy::{math::*, prelude::*};
-use bevy_dolly::prelude::*;
+use bevy::{math::*, prelude::*, render::camera::Camera};
+use bevy_dolly::{DollyActions, prelude::Rig};
 use strum::IntoEnumIterator;
 
 use crate::prelude::*;
@@ -10,35 +10,29 @@ impl Plugin for SpacePreviewPlugin {
         app.add_system_set(
             SystemSet::on_enter(AppState::SpaceAssetPreview)
                 .with_system(setup)
-                .with_system(light_default_setup)
-        ).add_system_set(
-            SystemSet::on_update(AppState::SpaceAssetPreview)
-                .with_system(back_to_menu_system)
+                .with_system(light_default_setup),
         )
         .add_system_set(
-            SystemSet::on_exit(AppState::SpaceAssetPreview)
-                .with_system(clear_system)
-        );
+            SystemSet::on_update(AppState::SpaceAssetPreview).with_system(back_to_menu_system),
+        )
+        .add_system_set(SystemSet::on_exit(AppState::SpaceAssetPreview).with_system(clear_system));
     }
 }
 
 fn setup(mut commands: Commands) {
-
     // Camera
     commands
-        .spawn_bundle(DollyControlCameraBundle {
-            rig: Rig::default()
-                .add(RigPosition::default())
-                .add(Rotation::default())
-                .add(Smooth::new(1.0, 1.0)),
-            transform: Transform::from_xyz(-5.0, 5.0, -5.0).looking_at(vec3(10.0, 0.0, 10.0), Vec3::Y),
+        .spawn_bundle(PerspectiveCameraBundle {
+            camera: Camera {
+                name: Some("Camera3d".to_string()),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(-2.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         })
-        .insert_bundle(bevy_mod_picking::PickingCameraBundle::default())
-        .insert(bevy_transform_gizmo::GizmoPickSource::default())
+        .insert(Rig::default())
+        .insert(DollyActions::default())
         .insert(Name::new("Camera1"));
-
-
 
     // Spawn one of each asset
     let mut current = vec3(0.0, 0.0, 0.0);

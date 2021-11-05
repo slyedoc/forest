@@ -1,15 +1,13 @@
 use std::{
-    f32::consts::PI,
     ops::{Deref, DerefMut},
 };
 
-use bevy::{math::*, prelude::*};
-use bevy_dolly::prelude::*;
+use crate::prelude::*;
+use bevy::{math::*, prelude::*, render::camera::Camera};
 use bevy_inspector_egui::Inspectable;
 use rand::prelude::*;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
-use crate::prelude::*;
 
 pub struct SpiderAttackPlugin;
 impl Plugin for SpiderAttackPlugin {
@@ -23,7 +21,6 @@ impl Plugin for SpiderAttackPlugin {
             SystemSet::on_update(AppState::SpiderAttack)
                 .with_system(back_to_menu_system)
                 .with_system(spider_update_system)
-                .with_system(spider_flip_hack_system)
                 .with_system(spider_mode_update_system)
                 .with_system(spider_update_wonder_target_system),
         )
@@ -72,12 +69,12 @@ fn setup(
 
     // Camera
     commands
-        .spawn_bundle(DollyControlCameraBundle {
-            rig: Rig::default()
-                .add(RigPosition::default())
-                .add(Rotation::default())
-                .add(Smooth::new(1.0, 1.0)),
-            transform: Transform::from_xyz(0.0, 2.0, -5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        .spawn_bundle(PerspectiveCameraBundle {
+            camera: Camera {
+                name: Some("Camera3d".to_string()),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(-2.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         })
         .insert(Name::new("Camera"))
@@ -132,7 +129,6 @@ impl Spider {
     }
 }
 
-
 pub fn spider_update_system(
     mut query: QuerySet<(
         QueryState<&Transform, With<Player>>,
@@ -158,20 +154,6 @@ pub fn spider_update_system(
                 transform.look_at(vec3(player.x, 0.0, player.z), Vec3::Y);
                 let forward = transform.forward(); // again its backward
                 transform.translation += forward * 0.03;
-            }
-        }
-    }
-}
-
-//TODO: Spider model is all jacked up, rotating child when created as a hack fix
-pub fn spider_flip_hack_system(
-    query: Query<&Children, (With<GenerateBounding>, With<Spider>)>,
-    mut transform_query: Query<&mut Transform>,
-) {
-    for children in query.iter() {
-        for c in children.iter() {
-            if let Ok(mut t) = transform_query.get_mut(*c) {
-                t.rotate(Quat::from_rotation_y(PI));
             }
         }
     }

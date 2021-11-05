@@ -1,16 +1,13 @@
-mod helper;
+
 
 use bevy::prelude::*;
-use bevy_mod_picking::PickableBundle;
+use bevy_dolly::{DollyActions, Rig};
 //use bevy_mod_picking::*;
 use forest::prelude::*;
 
 fn main() {
     App::new()
         .add_plugin(AppPlugin)
-        //.add_plugin(DebugCursorPickingPlugin)
-        //.add_plugin(DebugEventsPickingPlugin)
-        // Our plugins
         .add_startup_system(setup)
         .run();
 }
@@ -26,15 +23,16 @@ fn setup(
         mesh: meshes.add(Mesh::from(shape::Plane { size: 1000.0 })),
         material: materials.add(Color::rgb(0.2, 0.4, 0.2).into()),
         ..Default::default()
-    })
-    .insert_bundle(PickableBundle::default());
+    });
 
 
     // Camera
-    commands.spawn_bundle(CameraBundle {
+    commands.spawn_bundle(PerspectiveCameraBundle {
         transform: Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::Y, Vec3::Y),
         ..Default::default()
-    });
+    })
+    .insert(Rig::default())
+    .insert(DollyActions::default());
 
     // Spawn some ground for it to stand on
     commands

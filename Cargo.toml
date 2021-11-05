@@ -11,28 +11,21 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 bevy = { version =  "0.5" }
 bevy_egui = "0.7"
-bevy-shadows = { git = "https://github.com/slyedoc/bevy-shadows" } # not published
-bevy_dolly = { git = "https://github.com/slyedoc/bevy_dolly", branch = "bevy-native" } # not published
 bevy-inspector-egui = "0.6"
-bevy_transform_gizmo = { git = "https://github.com/slyedoc/bevy_transform_gizmo", branch = "bevy-main" } # not published
-bevy_mod_raycast = "0.2"
-bevy_mod_bounding = "0.1"
-bevy_mod_picking = "0.4"
-bevy_config_cam = { git = "https://github.com/slyedoc/bevy_config_cam", branch = "bevy-main" } # not published
+heron = { version = "0.12", features = ["debug-3d"] }
 ron = "0.7"
 serde = "1.0"
 rand = "0.8"
 strum = "0.22"
 strum_macros = "0.22"
-
-
-#not using
-noise = "0.7"
+bevy_dolly = { path = "../bevy_dolly" }
+bevy_mod_bounding = "0.1.1"
+#not using except for curve generation
 expression = "0.3"
 expression-num = "0.2"
-wasm-bindgen = { version = "0.2.74" }
+noise = "0.7"
 #derive_more = "0.99"
-
+#bevy_transform_gizmo = { git = "https://github.com/slyedoc/bevy_transform_gizmo", branch = "bevy-main" } # not published
 [dev-dependencies]
 expression-num = "0.2"
 
@@ -40,25 +33,19 @@ expression-num = "0.2"
 default = ["editor"]
 editor = []
 
+[profile.dev."*"]
+opt-level = 3
+
 [patch.crates-io]
-
-# Github versions
-bevy = { git = "https://github.com/slyedoc/bevy", branch = "gltf_names" } # main
-#bevy = { path = "../bevy" }
-
+heron = { path = "../heron" }
+#heron = { git = "https://github.com/jrxb/heron" }
+bevy = { path = "../bevy" }
+#bevy = { git = "https://github.com/deontologician/bevy/", branch = "deps-hack" } # main
 bevy_egui = { git = "https://github.com/slyedoc/bevy_egui", branch = "bevy-main"}
-
 bevy_mod_raycast = { git = "https://github.com/slyedoc/bevy_mod_raycast" }
 #bevy_mod_raycast = { path = "../bevy_mod_raycast" }
-
 bevy_mod_bounding = { git = "https://github.com/slyedoc/bevy_mod_bounding" }
 #bevy_mod_bounding = { path = "../bevy_mod_bounding" }
-
 bevy_mod_picking = { git = "https://github.com/slyedoc/bevy_mod_picking" }
 #bevy_mod_picking = { path = "../bevy_mod_picking" }
-
-
 bevy-inspector-egui = { git = "https://github.com/slyedoc/bevy-inspector-egui/", branch="bevy-main" }
-
-#[patch."https://github.com/slyedoc/bevy_dolly"]
-#bevy_dolly = { path = "../bevy_dolly" }

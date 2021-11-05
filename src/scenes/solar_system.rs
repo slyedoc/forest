@@ -1,13 +1,12 @@
 use crate::prelude::*;
-use bevy::{core::FixedTimestep, math::*, prelude::*};
-use bevy_dolly::prelude::*;
+use bevy::{core::FixedTimestep, math::*, prelude::*, render::camera::Camera};
+use bevy_dolly::{DollyActions, prelude::Rig};
 use rand::{thread_rng, Rng};
 
 pub struct SolarSystemPlugin;
 impl Plugin for SolarSystemPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app
-            .add_system_set(
+        app.add_system_set(
             SystemSet::on_enter(AppState::SolarSystem)
                 .with_system(setup)
                 //.with_system(light_default_setup)
@@ -16,20 +15,16 @@ impl Plugin for SolarSystemPlugin {
         )
         .add_system_set(
             SystemSet::on_update(AppState::SolarSystem)
-            .with_run_criteria(FixedTimestep::step(DELTA_TIME))
-            .with_system(back_to_menu_system)
-            .with_system(interact_bodies.label("interact"))
-            .with_system(integrate.after("interact")),
+                .with_run_criteria(FixedTimestep::step(DELTA_TIME))
+                .with_system(back_to_menu_system)
+                .with_system(interact_bodies.label("interact"))
+                .with_system(integrate.after("interact")),
         )
-        .add_system_set(
-            SystemSet::on_exit(AppState::SolarSystem).with_system(clear_system),
-        );
+        .add_system_set(SystemSet::on_exit(AppState::SolarSystem).with_system(clear_system));
     }
 }
 
-fn setup(
-    mut commands: Commands,
-) {
+fn setup(mut commands: Commands) {
     // create some orbital bodies that
     commands
         .spawn_bundle(SpaceAssetBundle {
@@ -42,16 +37,16 @@ fn setup(
 
     // Camera
     commands
-        .spawn_bundle(DollyControlCameraBundle {
-             rig: Rig::default()
-                 .add(RigPosition::default())
-                 .add(Rotation::default())
-                 .add(Smooth::new(1.0, 1.0)),
-            transform: Transform::from_xyz(0.0, 2.0, 110.0).looking_at(Vec3::ZERO, Vec3::Y),
+        .spawn_bundle(PerspectiveCameraBundle {
+            camera: Camera {
+                name: Some("Camera3d".to_string()),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(-2.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         })
-        //.insert_bundle(bevy_mod_picking::PickingCameraBundle::default())
-        //.insert(bevy_transform_gizmo::GizmoPickSource::default())
+        .insert(Rig::default())
+        .insert(DollyActions::default())
         .insert(Name::new("Player"))
         .id();
 }
@@ -91,7 +86,8 @@ fn generate_bodies(
     let color_range = 0.5..1.0;
     let vel_range = -0.5..0.5;
 
-    let bodies = commands.spawn_bundle((Transform::default(), GlobalTransform::default()))
+    let bodies = commands
+        .spawn_bundle((Transform::default(), GlobalTransform::default()))
         .insert(Name::new("Solar System"))
         .id();
 
@@ -109,65 +105,67 @@ fn generate_bodies(
             * rng.gen_range(pos_range.clone());
 
         commands.entity(bodies).with_children(|parent| {
-            parent.spawn_bundle(BodyBundle {
-                pbr: PbrBundle {
-                    transform: Transform {
-                        translation: position,
-                        scale: Vec3::splat(mass_value_cube_root * 0.5),
+            parent
+                .spawn_bundle(BodyBundle {
+                    pbr: PbrBundle {
+                        transform: Transform {
+                            translation: position,
+                            scale: Vec3::splat(mass_value_cube_root * 0.5),
+                            ..Default::default()
+                        },
+                        mesh: mesh.clone(),
+                        material: materials.add(
+                            Color::rgb_linear(
+                                rng.gen_range(color_range.clone()),
+                                rng.gen_range(color_range.clone()),
+                                rng.gen_range(color_range.clone()),
+                            )
+                            .into(),
+                        ),
                         ..Default::default()
                     },
-                    mesh: mesh.clone(),
-                    material: materials.add(
-                        Color::rgb_linear(
-                            rng.gen_range(color_range.clone()),
-                            rng.gen_range(color_range.clone()),
-                            rng.gen_range(color_range.clone()),
-                        )
-                        .into(),
+                    mass: Mass(mass_value),
+                    acceleration: Acceleration(Vec3::ZERO),
+                    last_pos: LastPos(
+                        position
+                            - Vec3::new(
+                                rng.gen_range(vel_range.clone()),
+                                rng.gen_range(vel_range.clone()),
+                                rng.gen_range(vel_range.clone()),
+                            ) * DELTA_TIME as f32,
                     ),
-                    ..Default::default()
-                },
-                mass: Mass(mass_value),
-                acceleration: Acceleration(Vec3::ZERO),
-                last_pos: LastPos(
-                    position
-                        - Vec3::new(
-                            rng.gen_range(vel_range.clone()),
-                            rng.gen_range(vel_range.clone()),
-                            rng.gen_range(vel_range.clone()),
-                        ) * DELTA_TIME as f32,
-                ),
-            })
-            .insert(Name::new(format!("Body{}", i)));
+                })
+                .insert(Name::new(format!("Body{}", i)));
         });
     }
 
     // add bigger "star" body in the center
-    
+
     commands.entity(bodies).with_children(|parent| {
-        parent.spawn_bundle(BodyBundle {
-            pbr: PbrBundle {
-                transform: Transform {
-                    scale: Vec3::splat(3.0),
+        parent
+            .spawn_bundle(BodyBundle {
+                pbr: PbrBundle {
+                    transform: Transform {
+                        scale: Vec3::splat(3.0),
+                        ..Default::default()
+                    },
+                    mesh: meshes.add(Mesh::from(shape::Icosphere {
+                        radius: 1.0,
+                        subdivisions: 5,
+                    })),
+                    material: materials.add((Color::ORANGE_RED * 10.0).into()),
                     ..Default::default()
                 },
-                mesh: meshes.add(Mesh::from(shape::Icosphere {
-                    radius: 1.0,
-                    subdivisions: 5,
-                })),
-                material: materials.add((Color::ORANGE_RED * 10.0).into()),
+                mass: Mass(1000.0),
                 ..Default::default()
-            },
-            mass: Mass(1000.0),
-            ..Default::default()
-        })
-        .insert(PointLight {
-            intensity: 100000.0,
-            range: 1000.0,
-            color: Color::ORANGE_RED,
-            ..Default::default()
-        })
-        .insert(Name::new("Star"));
+            })
+            .insert(PointLight {
+                intensity: 100000.0,
+                range: 1000.0,
+                color: Color::ORANGE_RED,
+                ..Default::default()
+            })
+            .insert(Name::new("Star"));
     });
 }
 
@@ -208,16 +206,16 @@ fn generate_background(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-
 ) {
     let mesh = meshes.add(Mesh::from(shape::Quad {
         size: vec2(1.0, 1.0),
         flip: true,
     }));
 
-    let background = commands.spawn_bundle((Transform::default(), GlobalTransform::default()))
-    .insert(Name::new("Background"))
-    .id();
+    let background = commands
+        .spawn_bundle((Transform::default(), GlobalTransform::default()))
+        .insert(Name::new("Background"))
+        .id();
 
     let color_range = 0.5..1.0;
 
@@ -235,26 +233,25 @@ fn generate_background(
             * BACKGROUND_RANGE;
 
         commands.entity(background).with_children(|parent| {
-            parent
-                .spawn_bundle(PbrBundle {
-                    transform: Transform {
-                        translation: position,
-                        scale: Vec3::splat(mass_value_cube_root),
-                        ..Default::default()
-                    }
-                    .looking_at(Vec3::ZERO, Vec3::Y),
-                    mesh: mesh.clone(),
-                    material: materials.add(StandardMaterial {
-                        base_color: Color::rgb_linear(
-                            rng.gen_range(color_range.clone()),
-                            rng.gen_range(color_range.clone()),
-                            rng.gen_range(color_range.clone()),
-                        ),
-                        unlit: true,
-                        ..Default::default()
-                    }),
+            parent.spawn_bundle(PbrBundle {
+                transform: Transform {
+                    translation: position,
+                    scale: Vec3::splat(mass_value_cube_root),
                     ..Default::default()
-                });
-       });
+                }
+                .looking_at(Vec3::ZERO, Vec3::Y),
+                mesh: mesh.clone(),
+                material: materials.add(StandardMaterial {
+                    base_color: Color::rgb_linear(
+                        rng.gen_range(color_range.clone()),
+                        rng.gen_range(color_range.clone()),
+                        rng.gen_range(color_range.clone()),
+                    ),
+                    unlit: true,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            });
+        });
     }
 }

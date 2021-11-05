@@ -1,5 +1,4 @@
-use bevy::{math::*, prelude::*};
-use bevy_dolly::prelude::*;
+use bevy::{math::*, prelude::*, render::camera::Camera};
 use strum::IntoEnumIterator;
 use crate::prelude::*;
 
@@ -24,16 +23,15 @@ impl Plugin for CityAssetPreviewPlugin {
 fn setup(mut commands: Commands) {
     // Camera
     commands
-        .spawn_bundle(DollyControlCameraBundle {
-            rig: Rig::default()
-                .add(RigPosition::default())
-                .add(Rotation::default())
-                .add(Smooth::new(1.0, 1.0)),
-            transform: Transform::from_xyz(-5.0, 5.0, -5.0)
-                .looking_at(vec3(10.0, 0.0, 10.0), Vec3::Y),
+    .spawn_bundle(PerspectiveCameraBundle {
+        camera: Camera {
+            name: Some("Camera3d".to_string()),
             ..Default::default()
-        })
-        .insert(Name::new("Camera"));
+        },
+        transform: Transform::from_xyz(-2.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..Default::default()
+    })
+    .insert(Name::new("Camera"));
 
     // Spawn one of each asset
     let mut current = vec3(0.0, 0.0, 0.0);

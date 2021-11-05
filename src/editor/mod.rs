@@ -78,10 +78,10 @@ fn maintain_inspected_entities(
 
     if let Some(entity) = entity {
         if let Some(active) = inspector.active {
-            commands.entity(active).remove::<bevy_transform_gizmo::GizmoTransformable>();
+            //commands.entity(active).remove::<bevy_transform_gizmo::GizmoTransformable>();
             inspector.active = None;
         } else {
-            commands.entity(entity).insert(bevy_transform_gizmo::GizmoTransformable);
+            //commands.entity(entity).insert(bevy_transform_gizmo::GizmoTransformable);
             inspector.active = Some(entity);
 
         }
